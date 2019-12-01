@@ -28,7 +28,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-
     app.register_blueprint(auth.bp)
 
     login_manager=LoginManager()
