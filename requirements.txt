@@ -1,6 +1,6 @@
 blinker==1.4
 Bootstrap-Flask==1.1.0
-Click==7.0
+
 Flask==1.1.1
 Flask-Login==0.4.1
 Flask-Principal==0.4.0
