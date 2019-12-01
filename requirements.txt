@@ -1,6 +1,2 @@
-WTForms==2.2.1
-Bootstrap_Flask==1.1.0
+Werkzeug==0.15.4
 Flask==1.1.1
-Flask_WTF==0.14.2
-Werkzeug==0.16.0
-Flask_Login==0.4.1
