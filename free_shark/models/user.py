@@ -17,7 +17,5 @@ class User(UserMixin):
     def is_authenticated(self):
         return self.__activite_flag
 
-
-
     def get_id(self):
         return '3'
