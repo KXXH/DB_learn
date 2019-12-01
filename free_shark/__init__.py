@@ -1,12 +1,11 @@
 import os
 
-from flask import Flask
 from flask_bootstrap import Bootstrap
+from flask import Flask,render_template
 from flask_login import LoginManager
-
 import auth
-
 from models import user
+from flask_sqlalchemy import SQLAlchemy
 
 def create_app(test_config=None):
     app=Flask(__name__)
@@ -28,6 +27,16 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+
+    db = SQLAlchemy(app)
+    class User(db.Model):
+        __tablename__ = 'user'
+        id = db.Column(db.Integer, primary_key = True)
+        username = db.Column(db.String(64),unique=True,index=True)
+
+        def __repr__(self):
+                return '<User %r>' % self.username 
+    
     app.register_blueprint(auth.bp)
 
     login_manager=LoginManager()
@@ -46,7 +55,10 @@ def create_app(test_config=None):
     # a simple page that says hello
     @app.route('/hello')
     def hello():
-        return 'Hello, World!'
+        sql = 'update user set username = "hahah" where id = 1'
+        db.session.execute(sql)
+        user = User.query.all()
+        return render_template('userTest.html',user=user)
 
     return app
 
