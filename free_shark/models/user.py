@@ -19,3 +19,5 @@ class User(UserMixin):
 
     def get_id(self):
         return '3'
+
+        
