@@ -1,5 +1,5 @@
 import pymysql
-from flask import current_app,g
+from flask import current_app,g,abort
 import click
 from flask.cli import with_appcontext
 
@@ -25,6 +25,14 @@ def init_db():
         with current_app.open_resource('../db_source/%s.sql' % table_name) as f:
             cursor=db.cursor()
             cursor.execute(f.read().decode('utf8'))
+
+def db_required(func):
+    def wrapper(*args, **kwargs):
+        db=get_db()
+        func(*args,**kwargs)
+        db.close()
+    return wrapper
+
 
 
 @click.command('init-db')

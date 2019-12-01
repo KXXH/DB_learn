@@ -72,8 +72,8 @@ def create_app(test_config=None):
     @app.route('/db')
     def test_db():
         from db import get_db
-        test_db=get_db()
-        print(test_db)
+        from models import user
+        user.User.get_user_by_id(2)
         return "aaa"
 
     return app
