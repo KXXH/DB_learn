@@ -10,6 +10,11 @@ try:
 except ModuleNotFoundError:
     from .models import user
 
+try:
+    from models import student
+except ModuleNotFoundError:
+    from .models import student
+
 from flask_login import login_user,login_required,logout_user
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')
@@ -34,6 +39,8 @@ def login():
 @bp.route('/test')
 @login_required
 def test():
+    c_student = student.Student("1","2016141441125","PDD","CS","1","buzhidao")
+    add_student("1","2016141441125","PDD","CS","1","buzhidao")
     return "login required!"    #加入界面
 
 @bp.route("/logout")
