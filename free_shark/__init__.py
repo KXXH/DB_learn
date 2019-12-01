@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask
-
+from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 
 import auth
@@ -32,9 +32,11 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
 
     login_manager=LoginManager()
-
+    
     login_manager.init_app(app)
 
+    bootstrap=Bootstrap()
+    bootstrap.init_app(app)
     @login_manager.user_loader
     def load_user(userid):
         if userid=='3':
