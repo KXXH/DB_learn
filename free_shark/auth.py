@@ -1,7 +1,15 @@
 from flask import (Blueprint,flash,g,render_template,request,session,redirect,url_for)
 from werkzeug.security import check_password_hash,generate_password_hash
-from forms import login_form
-from models import user
+try:
+    from forms import login_form
+except ModuleNotFoundError:
+    from .forms import login_form
+    
+try:
+    from models import user
+except ModuleNotFoundError:
+    from .models import user
+
 from flask_login import login_user,login_required,logout_user
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')

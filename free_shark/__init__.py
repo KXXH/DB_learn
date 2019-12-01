@@ -3,9 +3,18 @@ import os
 from flask_bootstrap import Bootstrap
 from flask import Flask,render_template
 from flask_login import LoginManager
-import auth
-from models import user
+try:
+    from models import user
+except ModuleNotFoundError:
+    from .models import user
+
 from flask_sqlalchemy import SQLAlchemy
+
+try:
+    import auth
+except ModuleNotFoundError:
+    from . import auth
+
 
 def create_app(test_config=None):
     app=Flask(__name__)
@@ -14,6 +23,7 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, 'free_shark.sqlite'),
     )
     app.config.from_pyfile('free_shark.cfg')
+    app.config.from_pyfile('db_config.cfg')
     if test_config is None:
     # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
@@ -27,21 +37,20 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    try:
+        import db
+    except ModuleNotFoundError:
+        from . import db
+    db.init_app(app)
 
-    db = SQLAlchemy(app)
-    class User(db.Model):
-        __tablename__ = 'user'
-        id = db.Column(db.Integer, primary_key = True)
-        username = db.Column(db.String(64),unique=True,index=True)
-
-        def __repr__(self):
-                return '<User %r>' % self.username 
     
     app.register_blueprint(auth.bp)
 
     login_manager=LoginManager()
     
     login_manager.init_app(app)
+
+
 
     bootstrap=Bootstrap()
     bootstrap.init_app(app)
@@ -59,6 +68,13 @@ def create_app(test_config=None):
         db.session.execute(sql)
         user = User.query.all()
         return render_template('userTest.html',user=user)
+
+    @app.route('/db')
+    def test_db():
+        from db import get_db
+        test_db=get_db()
+        print(test_db)
+        return "aaa"
 
     return app
 
