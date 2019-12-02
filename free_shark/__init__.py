@@ -1,8 +1,9 @@
 import os
 
 from flask_bootstrap import Bootstrap
-from flask import Flask,render_template
+from flask import Flask,render_template,request
 from flask_login import LoginManager
+
 try:
     from models import user
 except ModuleNotFoundError:
@@ -62,19 +63,20 @@ def create_app(test_config=None):
             return None
 
     # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        sql = 'update user set username = "hahah" where id = 1'
-        db.session.execute(sql)
-        user = User.query.all()
-        return render_template('userTest.html',user=user)
+    
 
     @app.route('/db')
     def test_db():
         from db import get_db
-        from models import user
-        user.User.get_user_by_id(2)
+        test_db=get_db()
+        print(test_db)
         return "aaa"
+
+    @app.route('/hello',methods=("POST"))
+    def hello():
+        file = request.files.get("pic")
+        
+        return render_template("upload.html", waha=r.get_commodity_photo_url1())
 
     return app
 

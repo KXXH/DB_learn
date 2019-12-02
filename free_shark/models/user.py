@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from ..db import get_db,close_db,db_required,abort
+from free_shark.db import get_db,close_db,db_required,abort
 
 class User(UserMixin):
 

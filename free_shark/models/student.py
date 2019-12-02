@@ -1,4 +1,4 @@
-from db import get_db
+from flask_shark.db import get_db
 import time
 import pymysql
 
