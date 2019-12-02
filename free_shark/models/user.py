@@ -29,6 +29,9 @@ class User(UserMixin):
     def is_authenticated(self):
         return self._activite_flag
 
+    def get_id(self):
+        return str(self._id)
+
     def user_id_not_none(func):
         def wrapper(self,*args,**kwargs):
             if self.id is None:

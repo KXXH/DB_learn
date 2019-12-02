@@ -19,10 +19,6 @@ except ModuleNotFoundError:
 
 def create_app(test_config=None):
     app=Flask(__name__)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'free_shark.sqlite'),
-    )
     app.config.from_pyfile('free_shark.cfg')
     app.config.from_pyfile('db_config.cfg')
     if test_config is None:
@@ -43,24 +39,18 @@ def create_app(test_config=None):
     except ModuleNotFoundError:
         from . import db
     db.init_app(app)
-
     
     app.register_blueprint(auth.bp)
 
-    login_manager=LoginManager()
-    
+    login_manager=LoginManager()   
     login_manager.init_app(app)
-
-
 
     bootstrap=Bootstrap()
     bootstrap.init_app(app)
+
     @login_manager.user_loader
     def load_user(userid):
-        if userid=='3':
-            return user.User("user","pass")
-        else:
-            return None
+        return user.User.get_user_by_id(int(userid))
 
     # a simple page that says hello
     

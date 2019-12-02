@@ -1,4 +1,4 @@
-from flask import (Blueprint,flash,g,render_template,request,session,redirect,url_for)
+from flask import (Blueprint,flash,g,render_template,request,session,redirect,url_for,render_template_string)
 from werkzeug.security import check_password_hash,generate_password_hash
 try:
     from forms import login_form
@@ -31,7 +31,7 @@ def login():
         c_user=user.User.attempt_login(form.data['username'],form.data['password'])   #需要按需加载用户信息
         if c_user.is_authenticated():
             login_user(c_user)  #需要加入next跳转
-            return "success!"   #需要修改模板
+            return render_template_string("Hi {{ current_user.username }}!")   #需要修改模板
         else:
             return "wrong password!"
     return render_template("login.html",form=form)
