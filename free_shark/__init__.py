@@ -72,7 +72,7 @@ def create_app(test_config=None):
         print(test_db)
         return "aaa"
 
-    @app.route('/hello',methods=("POST"))
+    @app.route('/hello',methods=("POST","GET"))
     def hello():
         file = request.files.get("pic")
         
