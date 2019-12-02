@@ -9,6 +9,7 @@ except ModuleNotFoundError:
     from ..db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
     from ..exceptions.db_exception import DB_Exception
     from ..exceptions.user_model_exception import UserModelException,UserEmailInvalid
+from free_shark.db import get_db,close_db,db_required,abort
 
 class User(UserMixin):
 
