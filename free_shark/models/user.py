@@ -1,5 +1,14 @@
 from flask_login import UserMixin
-from ..db import get_db,close_db,db_required,abort
+from werkzeug.security import check_password_hash, generate_password_hash
+import re
+try:
+    from db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
+    from exceptions.db_exception import DB_Exception
+    from exceptions.user_model_exception import UserModelException,UserEmailInvalid
+except ModuleNotFoundError:
+    from ..db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
+    from ..exceptions.db_exception import DB_Exception
+    from ..exceptions.user_model_exception import UserModelException,UserEmailInvalid
 
 class User(UserMixin):
 
@@ -28,6 +37,9 @@ class User(UserMixin):
                 func(self,*args,**kwargs)
         return wrapper
 
+    def login(self):
+        self._activite_flag=True
+
     @property
     def id(self):
         return self._id
@@ -53,9 +65,12 @@ class User(UserMixin):
     def password(self):
         return self._password
     
+    def check_password(self,password):
+        return check_password_hash(self.password,password)
+
     @password.setter
     def password(self,new_val):
-        self._password=new_val
+        self._password=generate_password_hash(new_val)
         db=get_db()
         cursor=db.cursor()
         try:
@@ -89,6 +104,9 @@ class User(UserMixin):
     
     @email.setter
     def email(self,new_val):
+        pattern=r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"   #邮箱仅允许字母数字下划线和横杠
+        if not re.match(pattern,new_val):
+            raise UserEmailInvalid(new_val)
         self._email=new_val
         db=get_db()
         cursor=db.cursor()
@@ -135,7 +153,6 @@ class User(UserMixin):
             db.rollback()
             abort(500)
         db.close()
-
 
     @property
     def status(self):
@@ -205,16 +222,14 @@ class User(UserMixin):
 
     @staticmethod
     def attempt_login(username,password):
-        db=get_db()
-        cursor=db.cursor()
-        cursor.execute('SELECT * FROM user WHERE username=%s AND password=%s',(username,password))
-        result=cursor.fetchone()
-        if result is None:
-            return User()   #登陆失败
-        user=User.create_user_from_rows(result) 
-        cursor.close()
-        db.close()
-        return user
+        user = User.get_user_by_username(username)
+        if user is None:
+            return User()
+        if user.check_password(password):
+            user.login()
+            return user
+        else:
+            return User()
 
     @staticmethod
     def create_user(**kwargs):
@@ -228,7 +243,6 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        
         
 
 
