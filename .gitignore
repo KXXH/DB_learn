@@ -14,3 +14,4 @@ build/
 *.egg-info/
 .vscode/settings.json
 free_shark/db_config.cfg
+/tests/db_config.cfg
