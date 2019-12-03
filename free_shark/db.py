@@ -28,7 +28,7 @@ def get_db_with_multi_statements():
             database=current_app.config['DATABASE'],
             client_flag = CLIENT.MULTI_STATEMENTS
         )
-    assert g.db_with_multi_statements.ping(reconnect=True)
+    g.db_with_multi_statements.ping(reconnect=True)
     return g.db_with_multi_statements
 
 def get_db_with_dict_cursor():
@@ -43,7 +43,7 @@ def get_db_with_dict_cursor():
             client_flag = CLIENT.MULTI_STATEMENTS,
             cursorclass=pymysql.cursors.DictCursor
         )
-    assert g.db_with_dict_cursor.ping(reconnect=True)
+    g.db_with_dict_cursor.ping(reconnect=True)
     return g.db_with_dict_cursor
 
 

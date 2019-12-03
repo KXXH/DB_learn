@@ -51,7 +51,7 @@ class Student():
             # 关闭数据库连接
         db.close()
 
-   @staticmethod
+    @staticmethod
     def create_stu_from_rows(row):
         stu=Student(user_id=row[1],school_number=row[2],real_name=row[3],college=row[3],banji=row[4],activation=row[5],contact=row[6])
         return stu
