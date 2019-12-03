@@ -17,7 +17,7 @@ class User(UserMixin):
         super().__init__()
         self._id=kwargs.get('id',None)
         self._username=kwargs.get('username',None)
-        self._password=kwargs.get('password',None)
+        self._password=kwargs.get('password',"")
         self._salt=kwargs.get('salt',None)
         self._email=kwargs.get('email',None)
         self._activation=kwargs.get('activation',None)
@@ -67,10 +67,10 @@ class User(UserMixin):
     
     @property
     def password(self):
-        return self._password
+        return None
     
     def check_password(self,password):
-        return check_password_hash(self.password,password)
+        return check_password_hash(self._password,password)
 
     @password.setter
     def password(self,new_val):
@@ -241,7 +241,7 @@ class User(UserMixin):
         db=get_db()
         cursor=db.cursor()
         try:
-            cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(user.username,user.password,user.salt,user.email,user.activation,user.type,user.status,user.create_time))
+            cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(user.username,user._password,user.salt,user.email,user.activation,user.type,user.status,user.create_time))
             db.commit()
             return User.get_user_by_username(user.username)
         except:

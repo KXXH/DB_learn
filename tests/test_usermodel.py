@@ -25,7 +25,7 @@ class TestUser:
             assert user is not None
             user=User.get_user_by_username('zjm')
             assert user is not None
-            assert user.password=='kxxh'
+            assert user.salt=="kxxh"
 
     def test_select2(self,app):
         with app.app_context():
@@ -50,6 +50,7 @@ class TestUser:
             user.password='passwd'
             user=User.get_user_by_id(1)
             assert user.check_password('passwd')
+
 
     def test_modify_salt(self,app):
         with app.app_context():

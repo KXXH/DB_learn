@@ -3,18 +3,11 @@ import os
 from flask_bootstrap import Bootstrap
 from flask import Flask,render_template,request
 from flask_login import LoginManager
-
-try:
-    from models import user
-except ModuleNotFoundError:
-    from .models import user
-
+from flask_restful import Resource, Api
+from free_shark.models import user
+from free_shark import auth,db
 from flask_sqlalchemy import SQLAlchemy
 
-try:
-    import auth
-except ModuleNotFoundError:
-    from . import auth
 
 
 def create_app(test_config=None):
@@ -34,13 +27,11 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    try:
-        import db
-    except ModuleNotFoundError:
-        from . import db
     db.init_app(app)
     
     app.register_blueprint(auth.bp)
+
+    api=Api(app)
 
     login_manager=LoginManager()   
     login_manager.init_app(app)
@@ -57,8 +48,7 @@ def create_app(test_config=None):
 
     @app.route('/db')
     def test_db():
-        from db import get_db
-        test_db=get_db()
+        test_db=db.get_db()
         print(test_db)
         return "aaa"
 
