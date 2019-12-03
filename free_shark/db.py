@@ -5,46 +5,53 @@ import click
 from flask.cli import with_appcontext
 
 def get_db():
-    db=pymysql.connect(
-        host=current_app.config['DB_HOST'],
-        user=current_app.config['DB_USER'],
-        password=current_app.config['DB_PASSWORD'],
-        port=current_app.config['DB_PORT'],
-        charset=current_app.config['DB_CHARSET'],
-        database=current_app.config['DATABASE']
-        )
-    return db
+    if 'db' not in g:
+        g.db=pymysql.connect(
+            host=current_app.config['DB_HOST'],
+            user=current_app.config['DB_USER'],
+            password=current_app.config['DB_PASSWORD'],
+            port=current_app.config['DB_PORT'],
+            charset=current_app.config['DB_CHARSET'],
+            database=current_app.config['DATABASE']
+            )
+    g.db.ping(reconnect=True)
+    return g.db
 
 def get_db_with_multi_statements():
-    db=pymysql.connect(
-        host=current_app.config['DB_HOST'],
-        user=current_app.config['DB_USER'],
-        password=current_app.config['DB_PASSWORD'],
-        port=current_app.config['DB_PORT'],
-        charset=current_app.config['DB_CHARSET'],
-        database=current_app.config['DATABASE'],
-        client_flag = CLIENT.MULTI_STATEMENTS
-    )
-    return db
+    if 'db_with_multi_statements' not in g:
+        g.db_with_multi_statements=pymysql.connect(
+            host=current_app.config['DB_HOST'],
+            user=current_app.config['DB_USER'],
+            password=current_app.config['DB_PASSWORD'],
+            port=current_app.config['DB_PORT'],
+            charset=current_app.config['DB_CHARSET'],
+            database=current_app.config['DATABASE'],
+            client_flag = CLIENT.MULTI_STATEMENTS
+        )
+    g.db_with_multi_statements.ping(reconnect=True)
+    return g.db_with_multi_statements
 
 def get_db_with_dict_cursor():
-    db=pymysql.connect(
-        host=current_app.config['DB_HOST'],
-        user=current_app.config['DB_USER'],
-        password=current_app.config['DB_PASSWORD'],
-        port=current_app.config['DB_PORT'],
-        charset=current_app.config['DB_CHARSET'],
-        database=current_app.config['DATABASE'],
-        client_flag = CLIENT.MULTI_STATEMENTS,
-        cursorclass=pymysql.cursors.DictCursor
-    )
-    return db
+    if 'db_with_dict_cursor' not in g:
+        g.db_with_dict_cursor=pymysql.connect(
+            host=current_app.config['DB_HOST'],
+            user=current_app.config['DB_USER'],
+            password=current_app.config['DB_PASSWORD'],
+            port=current_app.config['DB_PORT'],
+            charset=current_app.config['DB_CHARSET'],
+            database=current_app.config['DATABASE'],
+            client_flag = CLIENT.MULTI_STATEMENTS,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+    g.db_with_dict_cursor.ping(reconnect=True)
+    return g.db_with_dict_cursor
 
 
 def close_db(e=None):
-    db=g.pop('db',None)
-    if db is not None:
-        db.close()
+    for db_name in ['db','db_with_dict_cursor','db_with_multi_statements']:
+        db=g.pop(db_name,None)
+        if db is not None and db.open:
+            db.close()
 
 def init_db():
     db=get_db_with_multi_statements()
