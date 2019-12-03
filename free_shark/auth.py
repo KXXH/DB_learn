@@ -36,11 +36,12 @@ def login():
             return "wrong password!"
     return render_template("login.html",form=form)
 
-@bp.route('/test')
-@login_required
+
+@bp.route('/test',methods=("GET","POST"))
 def test():
-    c_student = student.Student("1","2016141441125","PDD","CS","1","buzhidao")
-    add_student("1","2016141441125","PDD","CS","1","buzhidao")
+    #c_student = student.Student("1","2016141441125","PDD","CS","1","buzhidao")
+    #student.Student.add_student("1","2016141441125","PDD","CS","1","buzhidao")
+    student.Student.query_student(1)
     return "login required!"    #加入界面
 
 @bp.route("/logout")
