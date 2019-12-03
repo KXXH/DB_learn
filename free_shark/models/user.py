@@ -63,7 +63,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
     
     @property
     def password(self):
@@ -83,7 +83,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
     @property
     def salt(self):
@@ -100,7 +100,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
     @property
     def email(self):
@@ -120,7 +120,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
 
     @property
@@ -138,7 +138,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
 
     @property
@@ -156,7 +156,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
     @property
     def status(self):
@@ -174,7 +174,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
 
     @property
@@ -191,7 +191,7 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        db.close()
+        
 
     @staticmethod
     def create_user_from_rows(row):
@@ -208,7 +208,7 @@ class User(UserMixin):
             return None
         user=User.create_user_from_rows(result)
         cursor.close()
-        db.close()
+        
         return user
 
     @staticmethod
@@ -221,7 +221,7 @@ class User(UserMixin):
             return None
         user=User.create_user_from_rows(result)
         cursor.close()
-        db.close()
+        
         return user
 
     @staticmethod
