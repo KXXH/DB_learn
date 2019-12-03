@@ -6,23 +6,44 @@
 <input type="hidden" value={{ page.current }} id="current">
 <input type="hidden" value={{ page.get_from() }} id="from">
 <input type="hidden" value={{ page.get_to() }} id="to">
-<button onclick="sell_commodity()">上架我的商品</button>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    上架商品
+</button>
 
-<ul>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
     商品列表
     <label>商品种类</label>
-    <input type="text" name="choose_commodity_type" id="commodity_type"
-                {% if request.args.get('commodity_type') %}    
-                    value={{ request.args.get('commodity_type') }}
-                {% endif %}>
+    <input type="text" name="choose_commodity_type" id="commodity_type" {% if request.args.get('commodity_type') %}
+        value={{ request.args.get('commodity_type') }} {% endif %}>
     <label>商品名称</label>
-    <input type="text" name="choose_commodity_name" id="commodity_name"
-                {% if request.args.get('commodity_name') %}    
-                    value={{ request.args.get('commodity_name') }}
-                {% endif %}>
+    <input type="text" name="choose_commodity_name" id="commodity_name" {% if request.args.get('commodity_name') %}
+        value={{ request.args.get('commodity_name') }} {% endif %}>
     <button onclick="search()">搜索</button>
+</div>
+<ul class="list-group">
     {% for commodity in commodities %}
-    <li>
+    <li class="list-group-item">
         商品名称： {{ commodity.commodity_name }}
         <br>
         商品种类： {{ commodity.commodity_type }}

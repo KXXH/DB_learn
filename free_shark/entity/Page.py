@@ -1,7 +1,7 @@
 class Page:
     def __init__(self,**kwargs):
         self._current = kwargs.get('current',1)
-        self._limit = kwargs.get('limit',10)
+        self._limit = kwargs.get('limit',5)
         self._rows = kwargs.get('rows',None)
         self._path = kwargs.get('path',None)
 
