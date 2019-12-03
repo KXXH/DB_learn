@@ -5,9 +5,10 @@ from flask import Flask,render_template,request
 from flask_login import LoginManager
 from flask_restful import Resource, Api
 from free_shark.models import user
+from free_shark import resources
 from free_shark import auth,db
 from flask_sqlalchemy import SQLAlchemy
-
+from free_shark.utils import admin_login_required
 
 
 def create_app(test_config=None):
@@ -30,8 +31,9 @@ def create_app(test_config=None):
     db.init_app(app)
     
     app.register_blueprint(auth.bp)
+    app.register_blueprint(resources.bp)
+   
 
-    api=Api(app)
 
     login_manager=LoginManager()   
     login_manager.init_app(app)
@@ -52,11 +54,11 @@ def create_app(test_config=None):
         print(test_db)
         return "aaa"
 
+    
     @app.route('/hello',methods=("POST","GET"))
+    @admin_login_required
     def hello():
-        file = request.files.get("pic")
-        
-        return render_template("upload.html", waha=r.get_commodity_photo_url1())
+        return "hello"
 
     return app
 

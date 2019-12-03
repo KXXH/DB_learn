@@ -112,3 +112,15 @@ class TestUser:
         with app.app_context():
             user=User.attempt_login("test1","123")
             assert user.is_authenticated() is False
+    
+    def test_user_query1(self,app):
+        with app.app_context():
+            users=User.search_user(username="test1")
+            assert len(users)>0
+            assert users[0].username=="test1"
+
+    def test_user_query2(self,app):
+        with app.app_context():
+            users=User.search_user(username="%test%")
+            assert len(users)>1
+            assert users[0].username=="test1" and users[1].username=="test2"

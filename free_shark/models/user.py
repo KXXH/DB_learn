@@ -1,14 +1,10 @@
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 import re
-try:
-    from db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
-    from exceptions.db_exception import DB_Exception
-    from exceptions.user_model_exception import UserModelException,UserEmailInvalid
-except ModuleNotFoundError:
-    from ..db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
-    from ..exceptions.db_exception import DB_Exception
-    from ..exceptions.user_model_exception import UserModelException,UserEmailInvalid
+from free_shark.db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
+from free_shark.exceptions.db_exception import DB_Exception
+from free_shark.exceptions.user_model_exception import UserModelException,UserEmailInvalid,UsernameDuplicate
+
 from free_shark.db import get_db,close_db,db_required,abort
 
 class User(UserMixin):
@@ -18,11 +14,11 @@ class User(UserMixin):
         self._id=kwargs.get('id',None)
         self._username=kwargs.get('username',None)
         self._password=kwargs.get('password',"")
-        self._salt=kwargs.get('salt',None)
+        self._salt=kwargs.get('salt',"salt")
         self._email=kwargs.get('email',None)
-        self._activation=kwargs.get('activation',None)
-        self._type=kwargs.get('type',None)
-        self._status=kwargs.get('status',None)
+        self._activation=kwargs.get('activation','act')
+        self._type=kwargs.get('type',1)
+        self._status=kwargs.get('status',1)
         self._create_time=kwargs.get('create_time',None)
         self._activite_flag=False
     
@@ -49,11 +45,18 @@ class User(UserMixin):
         return self._id
 
     @property
+    def is_admin(self):
+        return self.type==0
+
+    @property
     def username(self):
         return self._username
 
     @username.setter
     def username(self,new_val):
+        user=User.get_user_by_username(new_val)
+        if user is not None:
+            raise UsernameDuplicate(new_val)
         self._username=new_val
         db=get_db()
         cursor=db.cursor()
@@ -212,6 +215,30 @@ class User(UserMixin):
         return user
 
     @staticmethod
+    def search_user(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1):
+        sql="""
+        SELECT * FROM user WHERE 
+            username LIKE %s AND 
+            email LIKE %s AND
+            activation LIKE %s AND
+            type LIKE %s AND
+            status LIKE %s AND
+            create_time LIKE %s
+        LIMIT %s OFFSET %s
+            """
+        db=get_db_with_dict_cursor()
+        cursor=db.cursor()
+        cursor.execute(sql,(username,email,activation,type,status,create_time,page_size,(page_num-1)*page_size))
+        print(cursor.mogrify(sql,(username,email,activation,type,status,create_time,page_size,(page_num-1)*page_size)))
+        results=cursor.fetchall()
+        users=[]
+        for result in results:
+            user=User(**result)
+            users.append(user)
+        return users
+    
+
+    @staticmethod
     def get_user_by_username(username):
         db=get_db()
         cursor=db.cursor()
@@ -237,11 +264,17 @@ class User(UserMixin):
 
     @staticmethod
     def create_user(**kwargs):
+        assert 'username' in kwargs
+        user=User.get_user_by_username(kwargs['username'])
+        if user is not None:
+            raise UsernameDuplicate(kwargs['username'])
         user=User(**kwargs)
+        assert 'password' in kwargs
+        user.password=kwargs['password']
         db=get_db()
         cursor=db.cursor()
         try:
-            cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(user.username,user._password,user.salt,user.email,user.activation,user.type,user.status,user.create_time))
+            cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,CURRENT_TIME())",(user.username,user._password,user.salt,user.email,user.activation,user.type,user.status))
             db.commit()
             return User.get_user_by_username(user.username)
         except:
