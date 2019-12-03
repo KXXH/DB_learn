@@ -4,16 +4,22 @@ try:
     from forms import login_form
 except ModuleNotFoundError:
     from .forms import login_form
-    
+
+try:
+    from forms import student_form
+except ModuleNotFoundError:
+    from .forms import student_form  
+     
 try:
     from models import user
 except ModuleNotFoundError:
     from .models import user
 
-# try:
-#     from models import student
-# except ModuleNotFoundError:
-#     from .models import student
+try:
+    from models import student
+except ModuleNotFoundError:
+    from .models import student
+
 
 from flask_login import login_user,login_required,logout_user
 
@@ -39,10 +45,22 @@ def login():
 
 @bp.route('/test',methods=("GET","POST"))
 def test():
-    #c_student = student.Student("1","2016141441125","PDD","CS","1","buzhidao")
-    #student.Student.add_student("1","2016141441125","PDD","CS","1","buzhidao")
-    student.Student.query_student(1)
-    return "login required!"    #加入界面
+    form=student_form.StudentForm()
+    data ={}
+    if form.validate_on_submit():
+        print("form_data=",form.data)
+        stu=student.Student.get_student_real_name(form.data['real_name'])
+        stu.update_college=form.data['college']
+        data = {
+        "real_name": stu._real_name,
+        "college": stu._college,
+        "user_id": stu._user_id,
+        "school_number": stu._school_number,
+        "banji": stu._banji,
+        "contact": stu._contact
+        }
+        #return "已更新！！！！！"
+    return render_template("testStudent.html",form=form,data=data)
 
 @bp.route("/logout")
 @login_required
