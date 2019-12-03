@@ -1,0 +1,92 @@
+<head>
+    {{ bootstrap.load_css() }}
+    {{ bootstrap.load_js() }}
+</head>
+<body onload="init()">
+<input type="hidden" value={{ page.current }} id="current">
+<input type="hidden" value={{ page.get_from() }} id="from">
+<input type="hidden" value={{ page.get_to() }} id="to">
+<button onclick="sell_commodity()">上架我的商品</button>
+
+<ul>
+    商品列表
+    <label>商品种类</label>
+    <input type="text" name="choose_commodity_type" id="commodity_type"
+                {% if request.args.get('commodity_type') %}    
+                    value={{ request.args.get('commodity_type') }}
+                {% endif %}>
+    <label>商品名称</label>
+    <input type="text" name="choose_commodity_name" id="commodity_name"
+                {% if request.args.get('commodity_name') %}    
+                    value={{ request.args.get('commodity_name') }}
+                {% endif %}>
+    <button onclick="search()">搜索</button>
+    {% for commodity in commodities %}
+    <li>
+        商品名称： {{ commodity.commodity_name }}
+        <br>
+        商品种类： {{ commodity.commodity_type }}
+        <br>
+        价格： {{ commodity.price }}
+        <br>
+        商品介绍： {{ commodity.commodity_introduction }}
+        <br>
+        实拍图
+        <br>
+    </li>
+    {% endfor %}
+</ul>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        <!-- {{ page.get_list() }} -->
+        <li class="page-item" id="pre_page">
+            <a class="page-link" href="javascript:void(0);" onclick="pre_page()">Previous</a>
+        </li>
+        {% for i in page.get_list()%}
+            <li class="page-item"><a class="page-link" href="javascript:void(0);" id={{ i }}
+                onclick="change_page(this.id)">{{ i }}</a></li>
+        {%  endfor %}
+        <li class="page-item" id="next_page">
+            <a class="page-link" href="javascript:void(0);" onclick="next_page()">Next</a>
+        </li>
+    </ul>
+</nav>
+</body>
+<script>
+    var current = parseInt($("#current").val())
+    var from = parseInt($("#from").val())
+    var to = parseInt($("#to").val())
+
+    function init(){
+        if(current==1){
+            $("#pre_page").addClass("disabled");
+        }
+        if(current == to){
+            $("#next_page").addClass("disabled");
+        }
+        $("#"+current).parent().addClass("active");
+    }
+    function choose_page(){
+        window.location = "/hello?commodity_type=" + $("#commodity_type").val()
+            + "&commodity_name=" + $("#commodity_name").val()+"&current="+current;
+    }
+    function pre_page(){
+        current = current - 1 < from ? from : current - 1
+        choose_page()
+    }
+    function next_page() {
+        current = current + 1 > to ? to : current + 1
+        choose_page()
+    }
+    function change_page(id){
+        current = id
+        choose_page()
+    }
+
+
+    function search(){
+        window.location = "/hello?commodity_type=" + $("#commodity_type").val()
+                            +"&commodity_name=" + $("#commodity_name").val();
+    }
+</script>

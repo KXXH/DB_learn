@@ -115,6 +115,7 @@ class Commodity:
 #       传入一个Commodity实例进行上架，为实例方法
     
     def add_commodity(self):
+        success = 0
         sql = "insert into commodity(commodity_name,commodity_type,owner_student_id,price,\
             commodity_introduction,commodity_photo_url1,commodity_photo_url2,commodity_photo_url3,\
             commodity_photo_url4,commodity_photo_url5,create_time) \
@@ -129,15 +130,17 @@ class Commodity:
             print(sql)
             cursor.execute(sql)
             db.commit()
+            success = 1
         except:
             db.rollback()
 
         db.close()
-
+        return success
 #       删除商品
 #       传入商品id进行删除，为静态方法
 
     def delete_commodity_by_id(id):
+        success = 0
         sql = "delete from commodity where id = %d" % (id)
 
         try:
@@ -145,63 +148,74 @@ class Commodity:
             cursor = db.cursor()
             cursor.execute(sql)
             db.commit()
+            success = 1
         except:
             db.rollback()
 
         db.close()
-
+        return success
 #       搜索商品
 #       需要传入用户id（为-1时表示搜索全部），商品种类，商品名称
 #       需要改进 加入模糊搜索。。
-    def search_commodity(owner_student_id, commodity_type=None, commodity_name=None):
+    def search_commodity(owner_student_id, offset, limit,is_count=0,commodity_type=None, commodity_name=None):
         r = []
         if commodity_type != None and commodity_name!= None:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
                     AND commodity_name LIKE '%%%s%%' \
-                    order by create_time desc " % (commodity_type, commodity_name)
+                    order by create_time desc \
+                    limit %d,%d" % (commodity_type, commodity_name,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
                     AND owner_student_id = '%s' \
                     AND commodity_name LIKE '%%%s%%' \
-                    order by create_time desc" % (commodity_type, owner_student_id, commodity_name)
+                    order by create_time desc\
+                    limit %d,%d" % (commodity_type, owner_student_id, commodity_name,offset,limit)
 
         elif commodity_type == None and commodity_name != None:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_name LIKE '%%%s%%' \
-                    order by create_time desc " % (commodity_name)
+                    order by create_time desc \
+                    limit %d,%d" % (commodity_name,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE owner_student_id = '%s' \
                     AND commodity_name LIKE '%%%s%%' \
-                    order by create_time desc" % (owner_student_id, commodity_name)
+                    order by create_time desc\
+                    limit %d,%d" % (owner_student_id, commodity_name,offset,limit)
         elif commodity_type != None and commodity_name == None:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
-                    order by create_time desc " % (commodity_type)
+                    order by create_time desc \
+                    limit %d,%d" % (commodity_type,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
                     AND owner_student_id = '%s' \
-                    order by create_time desc" % (commodity_type, owner_student_id)
+                    order by create_time desc \
+                    limit %d,%d" % (commodity_type, owner_student_id,offset,limit)
         else:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
-                    order by create_time desc "
+                    order by create_time desc \
+                        limit %d,%d" % (offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE owner_student_id = '%s' \
-                    order by create_time desc" % (owner_student_id)
+                    order by create_time desc \
+                    limit %d,%d" % (owner_student_id,offset,limit)
 
         db = get_db()
         cursor = db.cursor()
         print(sql)
         cursor.execute(sql)
         results = cursor.fetchall()
+        if is_count == 1:
+            return len(results)
         for row in results:
             id = row[0]
             commodity_name = row[1]
@@ -225,12 +239,14 @@ class Commodity:
             r.append(commodity)
 
         db.close()
+
         return r
 
 #       是否需要加入更新操作？
 #       还是加入把
 
     def update_commodity(self):
+        success = 0
         sql = "update commodity set commodity_name = '%s',commodity_type='%s',owner_student_id='%s',price=%.2f,\
             commodity_introduction='%s',commodity_photo_url1='%s',commodity_photo_url2='%s',commodity_photo_url3='%s',\
             commodity_photo_url4='%s',commodity_photo_url5='%s',create_time='%s' \
@@ -245,7 +261,9 @@ class Commodity:
             print(sql)
             cursor.execute(sql)
             db.commit()
+            success = 1
         except:
             db.rollback()
 
         db.close()
+        return success

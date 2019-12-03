@@ -10,10 +10,10 @@ try:
 except ModuleNotFoundError:
     from .models import user
 
-try:
-    from models import student
-except ModuleNotFoundError:
-    from .models import student
+# try:
+#     from models import student
+# except ModuleNotFoundError:
+#     from .models import student
 
 from flask_login import login_user,login_required,logout_user
 

@@ -3,6 +3,9 @@ import os
 from flask_bootstrap import Bootstrap
 from flask import Flask,render_template,request
 from flask_login import LoginManager
+from free_shark.models.commodity import Commodity
+from free_shark.entity.Page import Page
+import sys
 
 try:
     from models import user
@@ -64,9 +67,22 @@ def create_app(test_config=None):
 
     @app.route('/hello',methods=("POST","GET"))
     def hello():
-        file = request.files.get("pic")
-        
-        return render_template("upload.html", waha=r.get_commodity_photo_url1())
+        if request.method == 'GET':
+            current = request.args.get('current') or 1
+            current = int(current)
+            commodity_name = request.args.get('commodity_name') or None
+            commodity_type = request.args.get('commodity_type') or None
+            print(commodity_name)
+            print(commodity_type)
+            r = Commodity.search_commodity(-1,0,sys.maxsize,1,commodity_type,commodity_name)
+            # 设置分页
+            page = Page()
+            page.current = current
+            page.rows = r
+            page.path = '/hello'
+            offset = page.get_offset()
+            coms = Commodity.search_commodity(-1,offset,page.limit,0,commodity_type,commodity_name)
+            return render_template("commodity.html", commodities=coms,page=page)
 
     return app
 
