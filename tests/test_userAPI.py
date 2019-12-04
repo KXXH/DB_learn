@@ -25,9 +25,9 @@ def admin_login(app):
         logout(client)
 
 @pytest.fixture(params=[("test1","123456"),("test2","123456")])
-def user_login(app):
-    with app.test_client(requests) as client:
-        rv,client=login(client,requests.params[0],requests.params[1])
+def user_login(app,request):
+    with app.test_client(request) as client:
+        rv,client=login(client,request.param[0],request.param[1])
         yield client,app
         logout(client)
 
@@ -124,3 +124,58 @@ def test_update_user_admin_case1(admin_login,id,username):
         user=User.get_user_by_id(id)
         assert user.username==username
 
+@pytest.mark.parametrize("id,email",[(1,"test11@test.com"),(2,"test22@test.com")])
+def test_update_user_admin_case2(admin_login,id,email):
+    client,app=admin_login
+    rv=client.post("/api/user/update",data={
+        "email":email,
+        "id":id
+    })
+    d=rv.get_json()
+    assert d['status']==200
+    with app.app_context():
+        user=User.get_user_by_id(id)
+        assert user.email==email
+
+def test_update_user_noadmin_case1(user_login):
+    client,app=user_login
+    rv=client.post("/api/user/update",data={
+        "email":"123@123.com",
+        "id":3
+    })
+    d=rv.get_json()
+
+    assert not "status" in d
+
+def test_update_user_noadmin_case2(user_login):
+    client,app=user_login
+    email="123@123.com"
+    with app.app_context():
+        id=current_user.id
+    rv=client.post("/api/user/update",data={
+        "email":email,
+        "id":id
+    })
+    d=rv.get_json()
+    assert d['status']==200
+    with app.app_context():
+        assert current_user.email=="123@123.com"  
+        user=User.get_user_by_id(id)
+        assert user.email==email
+
+@pytest.mark.parametrize("username,email",[("test2","ttt@ttt.com"),("tststs","rrr"),("test2","rrr")])
+def test_update_user_case1(admin_login,username,email):
+    client,app=admin_login
+    with app.app_context():
+        id=current_user.id
+    rv=client.post("/api/user/update",data={
+        "username":username,
+        "email":email,
+        "id":id
+    })
+    d=rv.get_json()
+    print(rv.data.decode("utf8"))
+    assert d['status']!=200
+    with app.app_context():
+        user=User.get_user_by_id(id)
+        assert user.username!=username or user.email != email

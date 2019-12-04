@@ -70,12 +70,9 @@ class TestUser:
     def test_modify_email_wrong_case(self,app):
         with app.app_context():
             user=User.get_user_by_id(1)
-            try:
+            with pytest.raises(UserEmailInvalid):
                 user.email='test_email' #此处应该抛出异常
-                assert 1==2 
-            except UserEmailInvalid as e:
-                assert e.wrong_email=='test_email'
-
+    
     def test_modify_type(self,app):
         with app.app_context():
             user=User.get_user_by_id(1)
