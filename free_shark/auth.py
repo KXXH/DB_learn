@@ -6,7 +6,7 @@ try:
     from models import student
 except ModuleNotFoundError:
     from .models import student
-from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity
+from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity,AnonymousIdentity
 from flask_login import login_user,login_required,logout_user,current_user
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')
@@ -19,7 +19,6 @@ def register():
 def login():
     form=login_form.LoginForm()
     if form.validate_on_submit():
-        print("form_data=",form.data)
         c_user=user.User.attempt_login(form.data['username'],form.data['password'])   #需要按需加载用户信息
         if c_user.is_authenticated():
             login_user(c_user)  #需要加入next跳转

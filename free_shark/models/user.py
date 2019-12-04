@@ -266,6 +266,7 @@ class User(UserMixin):
         db=get_db_with_dict_cursor()
         cursor=db.cursor()
         cursor.execute(sql,(username,email,activation,type,status,create_time))
+        print(cursor.mogrify(sql,(username,email,activation,type,status,create_time)))
         results=cursor.fetchall()
         users=[]
         for result in results:

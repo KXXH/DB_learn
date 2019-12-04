@@ -9,20 +9,21 @@ from free_shark.resources.configs import Base_Response_Fields,User_Search_Fields
 
 class UserUpdatePermission(Permission):
     def __init__(self,user_id):
-        need=(RoleNeed("admin"),UserNeed(user_id))
+        need=(RoleNeed("admin"),UserNeed(user_id))  #only user himself and admin can edit
         super().__init__(*need)
 
 class UserResourceAdd(Resource):
-    parser = reqparse.RequestParser()
+    
 
     def __init__(self):
+        self.parser = reqparse.RequestParser()
         self.parser.add_argument("username",required=True)
         self.parser.add_argument("password",required=True)
         self.parser.add_argument("email",required=True)
         pass
 
     @admin_login_required
-    @marshal_with(Base_Response_Fields().resource_fields, envelope='resource')
+    @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         d=self.parser.parse_args()
         user=User.create_user(**d)
@@ -35,19 +36,21 @@ class UserResourceAdd(Resource):
 
 
 class UserResourceSearch(Resource):
-    parser = reqparse.RequestParser()
+    
 
     def __init__(self):
-        self.parser.add_argument("username",required=True)    #精准查询的行
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument("username",required=False)    #精准查询的行
         self.parser.add_argument("email",required=False)  #精准查询的内容
         self.parser.add_argument("page_num",required=True,type=int)
         self.parser.add_argument("page_size",required=True,type=int)
     
     @drop_value_from_request()
     @admin_login_required
-    @marshal_with(User_Search_Fields().resource_fields, envelope='resource')
+    @marshal_with(User_Search_Fields().resource_fields)
     def post(self):
         d=self.parser.parse_args()
+        print(d)
         users,count=User.search_user(**d)
         return User_Search_Fields(users,count)
 
@@ -56,13 +59,14 @@ class UserResourceSearch(Resource):
 
 
 class UserResourceDelete(Resource):
-    parser = reqparse.RequestParser()
+    
 
     def __init__(self):
+        self.parser = reqparse.RequestParser()
         self.parser.add_argument("id",required=True)
 
     @admin_login_required
-    @marshal_with(Base_Response_Fields().resource_fields,envelope='resource')
+    @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         d=self.parser.parse_args()
         id=d['id']
@@ -78,15 +82,16 @@ class UserResourceDelete(Resource):
 
 
 class UserResourceUpdate(Resource):
-    parser=reqparse.RequestParser()
+    
 
     def __init__(self):
+        self.parser=reqparse.RequestParser()
         self.parser.add_argument("id",required=True,type=int)
         self.parser.add_argument("username",required=False)
         self.parser.add_argument("password",required=False)
         self.parser.add_argument("email",required=False)
     
-    @marshal_with(Base_Response_Fields().resource_fields,envelope='resource')
+    @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         
         d=self.parser.parse_args()

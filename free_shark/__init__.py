@@ -54,10 +54,12 @@ def create_app(test_config=None):
     def on_identity_loaded(sender, identity):
         print("indentity加载完毕!")
         identity.user=current_user
-        if current_user is not None:
+        if current_user is not None and not current_user.is_anonymous:
             identity.provides.add(UserNeed(current_user.id))
-        for role in current_user.role:
-            identity.provides.add(RoleNeed(role))
+            for role in current_user.role:
+                identity.provides.add(RoleNeed(role))
+        else:
+            identity.provides.add(RoleNeed("anonymous"))
 
     @app.route('/db')
     def test_db():
