@@ -8,10 +8,14 @@ from free_shark.models import user
 from free_shark import resources
 from free_shark import auth,db
 from flask_sqlalchemy import SQLAlchemy
+from free_shark import comController
 from free_shark.utils import admin_login_required
 from free_shark.models.commodity import Commodity
 from free_shark.entity.Page import Page
 import sys
+
+path = os.path.split(os.path.abspath(__file__))[0]
+UPLOAD_FOLDER = path + "\\static\\image"
 
 def create_app(test_config=None):
     app=Flask(__name__)
@@ -35,6 +39,7 @@ def create_app(test_config=None):
     
     app.register_blueprint(auth.bp)
     app.register_blueprint(resources.bp)
+    app.register_blueprint(comController.bp)
    
     principals = Principal(app)
     principals.init_app(app)
@@ -59,33 +64,6 @@ def create_app(test_config=None):
             identity.provides.add(UserNeed(current_user.id))
         for role in current_user.role:
             identity.provides.add(RoleNeed(role))
-
-    @app.route('/db')
-    def test_db():
-        test_db=db.get_db()
-        print(test_db)
-        return "aaa"
-
-    
-    @app.route('/hello',methods=("POST","GET"))
-    @admin_login_required
-    def hello():
-        if request.method == 'GET':
-            current = request.args.get('current') or 1
-            current = int(current)
-            commodity_name = request.args.get('commodity_name') or None
-            commodity_type = request.args.get('commodity_type') or None
-            print(commodity_name)
-            print(commodity_type)
-            r = Commodity.search_commodity(-1,0,sys.maxsize,1,commodity_type,commodity_name)
-            # 设置分页
-            page = Page()
-            page.current = current
-            page.rows = r
-            page.path = '/hello'
-            offset = page.get_offset()
-            coms = Commodity.search_commodity(-1,offset,page.limit,0,commodity_type,commodity_name)
-            return render_template("commodity.html", commodities=coms,page=page)
 
     return app
 
