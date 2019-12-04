@@ -54,6 +54,8 @@ class User(UserMixin):
 
     @username.setter
     def username(self,new_val):
+        if self._username==new_val:
+            return
         user=User.get_user_by_username(new_val)
         if user is not None:
             raise UsernameDuplicate(new_val)
@@ -77,6 +79,8 @@ class User(UserMixin):
 
     @password.setter
     def password(self,new_val):
+        if self.check_password(new_val):
+            return
         self._password=generate_password_hash(new_val)
         db=get_db()
         cursor=db.cursor()
@@ -94,6 +98,8 @@ class User(UserMixin):
 
     @salt.setter
     def salt(self,new_val):
+        if self._salt==new_val:
+            return
         self._salt=new_val
         db=get_db()
         cursor=db.cursor()
@@ -111,6 +117,9 @@ class User(UserMixin):
     
     @email.setter
     def email(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._email==new_val:
+            return
         pattern=r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"   #邮箱仅允许字母数字下划线和横杠
         if not re.match(pattern,new_val):
             raise UserEmailInvalid(new_val)
@@ -132,6 +141,9 @@ class User(UserMixin):
     
     @activation.setter
     def activation(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._activation==new_val:
+            return
         self._activation=new_val
         db=get_db()
         cursor=db.cursor()
@@ -150,6 +162,9 @@ class User(UserMixin):
     
     @type.setter
     def type(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._type==new_val:
+            return
         self._type=new_val
         db=get_db()
         cursor=db.cursor()
@@ -168,6 +183,9 @@ class User(UserMixin):
     @status.setter
     @user_id_not_none
     def status(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._status==new_val:
+            return
         self._status=new_val
         db=get_db()
         cursor=db.cursor()
@@ -184,7 +202,7 @@ class User(UserMixin):
     def create_time(self):
         return self._create_time
     
-
+    @user_id_not_none
     def delete_user(self):
         db=get_db()
         cursor=db.cursor()
@@ -215,7 +233,13 @@ class User(UserMixin):
         return user
 
     @staticmethod
-    def search_user(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1):
+    def search_user(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1,**kwargs):
+        users=User.search_user_without_page(username,email,activation,type,status,create_time,**kwargs)
+        return users[(page_num-1)*page_size:page_num*page_size],len(users)
+    
+
+    @staticmethod
+    def search_user_without_page(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%"):
         sql="""
         SELECT * FROM user WHERE 
             username LIKE %s AND 
@@ -224,19 +248,16 @@ class User(UserMixin):
             type LIKE %s AND
             status LIKE %s AND
             create_time LIKE %s
-        LIMIT %s OFFSET %s
             """
         db=get_db_with_dict_cursor()
         cursor=db.cursor()
-        cursor.execute(sql,(username,email,activation,type,status,create_time,page_size,(page_num-1)*page_size))
-        print(cursor.mogrify(sql,(username,email,activation,type,status,create_time,page_size,(page_num-1)*page_size)))
+        cursor.execute(sql,(username,email,activation,type,status,create_time))
         results=cursor.fetchall()
         users=[]
         for result in results:
             user=User(**result)
             users.append(user)
         return users
-    
 
     @staticmethod
     def get_user_by_username(username):

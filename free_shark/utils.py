@@ -33,13 +33,13 @@ class Arg_Default_Val(fields.Raw):
 def with_default_val(default_class=str,default_val=None):
     return Arg_Default_Val(default_class,default_val)
 
-def format_query_dict(default):
+def drop_value_from_request(default=None):
     def formatter(func):
         @wraps(func)
         def decorated_view(self):
             d=self.parser.parse_args()
             for key in d:
-                if d[key] is None:
+                if d[key]==None:
                     self.parser.remove_argument(key)
             return func(self)
         return decorated_view

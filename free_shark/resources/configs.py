@@ -1,3 +1,4 @@
+NOT_FOUND=404
 USERNAME_DUPLICATE=409
 USER_EMAIL_INVALID=410
 SUCCESS=200
@@ -12,6 +13,10 @@ errors = {
         'message': "该邮箱格式不正确",
         'status': USER_EMAIL_INVALID
     },
+    'UserNotFound':{
+        'message':"用户未找到",
+        'status':NOT_FOUND
+    }
 }
 
 from flask_restful import fields
@@ -31,38 +36,25 @@ class Base_Response_Fields:
 
 
 from free_shark.models.user import User
-class User_Field(fields.Raw):
-    def format(self,value):
-        print("fprmating")
-        if type(value)==User:
-            return {
-                "username":value.username,
-                "email":value.email,
-                "activation":value.activation,
-                "type":value.type,
-                "status":value.type,
-                "create_time":value.create_time
-            }
-        elif type(value)==list:
-            ans=[]
-            for user in value:
-                assert type(user)==User
-                ans.append({
-                    "username":user.username,
-                    "email":user.email,
-                    "activation":user.activation,
-                    "type":user.type,
-                    "status":user.type,
-                    "create_time":user.create_time
-                })
-            return ans
-
+import json
 class User_Search_Fields(Base_Response_Fields):
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
+    def __init__(self,data=None,count=0,**kwargs):
+        super().__init__(**kwargs)
+        self.user_fields={
+            "id":fields.Integer,
+            "username":fields.String,
+            "email":fields.String,
+            "activation":fields.String,
+            "type":fields.Integer,
+            "status":fields.Integer,
+            "create_time":fields.DateTime
+        }
+        self.data=data
+        self.count=count
     
     @property
     def resource_fields(self):
         d=super().resource_fields.copy()
-        d['data']=User_Field()
+        d['data']=fields.List(fields.Nested(self.user_fields))
+        d['count']=fields.Integer
         return d

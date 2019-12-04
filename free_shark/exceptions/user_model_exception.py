@@ -15,3 +15,10 @@ class UsernameDuplicate(UserModelException):
     def __init__(self,wrong_username):
         super(UsernameDuplicate,self).__init__(description="Username is used.")
         self.wrong_username=wrong_username
+
+
+class UserNotFound(UserModelException):
+    def __init__(self,wrong_key,wrong_id):
+        super(UserModelException,self).__init__(description="Username is used.")
+        self.wrong_key=wrong_key
+        self.wrong_id=wrong_id

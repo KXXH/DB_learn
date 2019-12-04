@@ -5,5 +5,7 @@ from free_shark.resources.configs import errors
 
 
 api=Api(bp,errors=errors)
-api.add_resource(user_resource.UserResourceAdd,'/user/add')
-api.add_resource(user_resource.UserResourceSearch,'/user/search')
+api.add_resource(user_resource.UserResourceAdd,'/user/admin/add')
+api.add_resource(user_resource.UserResourceSearch,'/user/admin/search')
+api.add_resource(user_resource.UserResourceDelete,'/user/admin/delete')
+api.add_resource(user_resource.UserResourceUpdate,'/user/admin/update')
