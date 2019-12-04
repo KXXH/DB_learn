@@ -36,5 +36,5 @@ CREATE TABLE `user`  (
 
 SET FOREIGN_KEY_CHECKS = 1;
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', 'test1', 'pbkdf2:sha256:150000$MfyO9dm0$d7e23d2d8688bbec533de0ac24abcc41800c22e016a22409f6043ced5b55d3f5', 'salt', 'email', 'act', '1', '1', null);
-INSERT INTO `user` VALUES ('2', 'test2', 'pbkdf2:sha256:150000$MfyO9dm0$d7e23d2d8688bbec533de0ac24abcc41800c22e016a22409f6043ced5b55d3f5', 'salt', 'email', 'act', '1', '1', null);
+INSERT INTO `user` VALUES ('1', 'test1', 'pbkdf2:sha256:150000$MfyO9dm0$d7e23d2d8688bbec533de0ac24abcc41800c22e016a22409f6043ced5b55d3f5', 'salt', 'email', 'act', '1', '1', CURRENT_TIME());
+INSERT INTO `user` VALUES ('2', 'test2', 'pbkdf2:sha256:150000$MfyO9dm0$d7e23d2d8688bbec533de0ac24abcc41800c22e016a22409f6043ced5b55d3f5', 'salt', 'email', 'act', '1', '1', CURRENT_TIME());
