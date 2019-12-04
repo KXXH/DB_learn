@@ -18,3 +18,4 @@ free_shark/db_config.cfg
 .cache/v/cache/lastfailed
 tests/.cache/v/cache/lastfailed
 tests/test_commoditymodel.py
+*.jpg
