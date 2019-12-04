@@ -1,14 +1,12 @@
-from flask_login import UserMixin
+from flask import current_app
+from flask_login import UserMixin,current_user
+
 from werkzeug.security import check_password_hash, generate_password_hash
 import re
-try:
-    from db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
-    from exceptions.db_exception import DB_Exception
-    from exceptions.user_model_exception import UserModelException,UserEmailInvalid
-except ModuleNotFoundError:
-    from ..db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
-    from ..exceptions.db_exception import DB_Exception
-    from ..exceptions.user_model_exception import UserModelException,UserEmailInvalid
+from free_shark.db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
+from free_shark.exceptions.db_exception import DB_Exception
+from free_shark.exceptions.user_model_exception import UserModelException,UserEmailInvalid,UsernameDuplicate
+
 from free_shark.db import get_db,close_db,db_required,abort
 
 class User(UserMixin):
@@ -17,12 +15,12 @@ class User(UserMixin):
         super().__init__()
         self._id=kwargs.get('id',None)
         self._username=kwargs.get('username',None)
-        self._password=kwargs.get('password',None)
-        self._salt=kwargs.get('salt',None)
+        self._password=kwargs.get('password',"")
+        self._salt=kwargs.get('salt',"salt")
         self._email=kwargs.get('email',None)
-        self._activation=kwargs.get('activation',None)
-        self._type=kwargs.get('type',None)
-        self._status=kwargs.get('status',None)
+        self._activation=kwargs.get('activation','act')
+        self._type=kwargs.get('type',1)
+        self._status=kwargs.get('status',1)
         self._create_time=kwargs.get('create_time',None)
         self._activite_flag=False
     
@@ -45,8 +43,24 @@ class User(UserMixin):
         self._activite_flag=True
 
     @property
+    def role(self):
+        ans=[]
+        if self.status==0:
+            ans.append("forbid")
+            return ans
+        if self.type==1:
+            ans.append("user")
+        elif self.type==0:
+            ans.append("admin")
+        return ans
+
+    @property
     def id(self):
         return self._id
+
+    @property
+    def is_admin(self):
+        return self.type==0
 
     @property
     def username(self):
@@ -54,6 +68,11 @@ class User(UserMixin):
 
     @username.setter
     def username(self,new_val):
+        if self._username==new_val:
+            return
+        user=User.get_user_by_username(new_val)
+        if user is not None:
+            raise UsernameDuplicate(new_val)
         self._username=new_val
         db=get_db()
         cursor=db.cursor()
@@ -67,13 +86,15 @@ class User(UserMixin):
     
     @property
     def password(self):
-        return self._password
+        return None
     
     def check_password(self,password):
-        return check_password_hash(self.password,password)
+        return check_password_hash(self._password,password)
 
     @password.setter
     def password(self,new_val):
+        if self.check_password(new_val):
+            return
         self._password=generate_password_hash(new_val)
         db=get_db()
         cursor=db.cursor()
@@ -91,6 +112,8 @@ class User(UserMixin):
 
     @salt.setter
     def salt(self,new_val):
+        if self._salt==new_val:
+            return
         self._salt=new_val
         db=get_db()
         cursor=db.cursor()
@@ -108,6 +131,9 @@ class User(UserMixin):
     
     @email.setter
     def email(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._email==new_val:
+            return
         pattern=r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"   #邮箱仅允许字母数字下划线和横杠
         if not re.match(pattern,new_val):
             raise UserEmailInvalid(new_val)
@@ -129,6 +155,9 @@ class User(UserMixin):
     
     @activation.setter
     def activation(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._activation==new_val:
+            return
         self._activation=new_val
         db=get_db()
         cursor=db.cursor()
@@ -147,6 +176,9 @@ class User(UserMixin):
     
     @type.setter
     def type(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._type==new_val:
+            return
         self._type=new_val
         db=get_db()
         cursor=db.cursor()
@@ -165,6 +197,9 @@ class User(UserMixin):
     @status.setter
     @user_id_not_none
     def status(self,new_val):
+        # 如果新值等于原始值则跳过修改
+        if self._status==new_val:
+            return
         self._status=new_val
         db=get_db()
         cursor=db.cursor()
@@ -181,7 +216,7 @@ class User(UserMixin):
     def create_time(self):
         return self._create_time
     
-
+    @user_id_not_none
     def delete_user(self):
         db=get_db()
         cursor=db.cursor()
@@ -212,6 +247,33 @@ class User(UserMixin):
         return user
 
     @staticmethod
+    def search_user(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1,**kwargs):
+        users=User.search_user_without_page(username,email,activation,type,status,create_time,**kwargs)
+        return users[(page_num-1)*page_size:page_num*page_size],len(users)
+    
+
+    @staticmethod
+    def search_user_without_page(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%"):
+        sql="""
+        SELECT * FROM user WHERE 
+            username LIKE %s AND 
+            email LIKE %s AND
+            activation LIKE %s AND
+            type LIKE %s AND
+            status LIKE %s AND
+            create_time LIKE %s
+            """
+        db=get_db_with_dict_cursor()
+        cursor=db.cursor()
+        cursor.execute(sql,(username,email,activation,type,status,create_time))
+        results=cursor.fetchall()
+        users=[]
+        for result in results:
+            user=User(**result)
+            users.append(user)
+        return users
+
+    @staticmethod
     def get_user_by_username(username):
         db=get_db()
         cursor=db.cursor()
@@ -237,19 +299,23 @@ class User(UserMixin):
 
     @staticmethod
     def create_user(**kwargs):
+        assert 'username' in kwargs
+        user=User.get_user_by_username(kwargs['username'])
+        if user is not None:
+            raise UsernameDuplicate(kwargs['username'])
         user=User(**kwargs)
+        assert 'password' in kwargs
+        user.password=kwargs['password']
         db=get_db()
         cursor=db.cursor()
         try:
-            cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(user.username,user.password,user.salt,user.email,user.activation,user.type,user.status,user.create_time))
+            cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,CURRENT_TIME())",(user.username,user._password,user.salt,user.email,user.activation,user.type,user.status))
             db.commit()
             return User.get_user_by_username(user.username)
         except:
             db.rollback()
             abort(500)
         
-
-
     
 
 

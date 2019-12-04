@@ -1,30 +1,17 @@
 import os
-
+from flask import Flask,render_template,request
 from flask_bootstrap import Bootstrap
-from flask import (Blueprint,flash,g,render_template,request,session,redirect,url_for,render_template_string,current_app,Flask)
-from free_shark.entity.Page import Page
-from free_shark.util.json_help import make_json
-from flask_login import LoginManager
-from flask_uploads import UploadSet, IMAGES, configure_uploads, ALL
-try:
-    from models import user
-except ModuleNotFoundError:
-    from .models import user
-
+from flask_login import LoginManager,current_user
+from flask_restful import Resource, Api
+from flask_principal import Principal, Permission, RoleNeed,identity_loaded,identity_changed,Identity,AnonymousIdentity,UserNeed
+from free_shark.models import user
+from free_shark import resources
+from free_shark import auth,db
 from flask_sqlalchemy import SQLAlchemy
-
-try:
-    import auth
-except ModuleNotFoundError:
-    from . import auth
-
-try:
-    import comController
-except ModuleNotFoundError:
-    from . import comController
-
-path = os.path.split(os.path.abspath(__file__))[0]
-UPLOAD_FOLDER = path + "\\static\\image"
+from free_shark.utils import admin_login_required
+from free_shark.models.commodity import Commodity
+from free_shark.entity.Page import Page
+import sys
 
 def create_app(test_config=None):
     app=Flask(__name__)
@@ -44,14 +31,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    try:
-        import db
-    except ModuleNotFoundError:
-        from . import db
     db.init_app(app)
     
     app.register_blueprint(auth.bp)
-    app.register_blueprint(comController.bp)
+    app.register_blueprint(resources.bp)
+   
+    principals = Principal(app)
+    principals.init_app(app)
 
     login_manager=LoginManager()   
     login_manager.init_app(app)
@@ -65,17 +51,41 @@ def create_app(test_config=None):
 
     # a simple page that says hello
     
+    @identity_loaded.connect_via(app)
+    def on_identity_loaded(sender, identity):
+        print("indentity加载完毕!")
+        identity.user=current_user
+        if current_user is not None:
+            identity.provides.add(UserNeed(current_user.id))
+        for role in current_user.role:
+            identity.provides.add(RoleNeed(role))
 
     @app.route('/db')
     def test_db():
-        from db import get_db
-        test_db=get_db()
+        test_db=db.get_db()
         print(test_db)
         return "aaa"
 
-    @app.route('/test')
-    def test_path():
-        return path
+    
+    @app.route('/hello',methods=("POST","GET"))
+    @admin_login_required
+    def hello():
+        if request.method == 'GET':
+            current = request.args.get('current') or 1
+            current = int(current)
+            commodity_name = request.args.get('commodity_name') or None
+            commodity_type = request.args.get('commodity_type') or None
+            print(commodity_name)
+            print(commodity_type)
+            r = Commodity.search_commodity(-1,0,sys.maxsize,1,commodity_type,commodity_name)
+            # 设置分页
+            page = Page()
+            page.current = current
+            page.rows = r
+            page.path = '/hello'
+            offset = page.get_offset()
+            coms = Commodity.search_commodity(-1,offset,page.limit,0,commodity_type,commodity_name)
+            return render_template("commodity.html", commodities=coms,page=page)
 
     return app
 
