@@ -1,17 +1,16 @@
 from functools import wraps
 from flask import request,current_app
 from flask_login import current_user,login_required
+from flask_principal import Permission,RoleNeed
 
 def admin_login_required(func):
     @wraps(func)
     @login_required
     def decorated_view(*args,**kwargs):
-        print(current_user.email)
-        if not current_user.is_admin:
-            print("not login")
+        permission=Permission(RoleNeed("admin"))
+        if not permission.can():
             return current_app.login_manager.unauthorized()
         else:
-            print("login")
             return func(*args,**kwargs)
     return decorated_view
 

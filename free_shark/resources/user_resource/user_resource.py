@@ -1,10 +1,16 @@
+from flask import abort
 from flask_restful import Resource,reqparse,fields, marshal_with
+from flask_principal import Permission,RoleNeed,UserNeed
 from free_shark.models.user import User
 from free_shark.exceptions.user_model_exception import UsernameDuplicate,UserNotFound
 from flask_login import login_required
 from free_shark.utils import admin_login_required,drop_value_from_request
 from free_shark.resources.configs import Base_Response_Fields,User_Search_Fields
 
+class UserUpdatePermission(Permission):
+    def __init__(self,user_id):
+        need=(RoleNeed("admin"),UserNeed(user_id))
+        super().__init__(*need)
 
 class UserResourceAdd(Resource):
     parser = reqparse.RequestParser()
@@ -75,16 +81,19 @@ class UserResourceUpdate(Resource):
     parser=reqparse.RequestParser()
 
     def __init__(self):
-        self.parser.add_argument("id",required=True)
+        self.parser.add_argument("id",required=True,type=int)
         self.parser.add_argument("username",required=False)
         self.parser.add_argument("password",required=False)
         self.parser.add_argument("email",required=False)
     
-    @admin_login_required
     @marshal_with(Base_Response_Fields().resource_fields,envelope='resource')
     def post(self):
+        
         d=self.parser.parse_args()
         id=d['id']
+        permission=UserUpdatePermission(id)
+        if not permission.can():
+            abort(401)
         user=User.get_user_by_id(id)
         if user is None:
             raise UserNotFound("id",id)
@@ -98,4 +107,3 @@ class UserResourceUpdate(Resource):
 
     def get(self):
         return self.post()
-        

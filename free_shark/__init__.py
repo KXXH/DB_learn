@@ -1,9 +1,9 @@
 import os
-
-from flask_bootstrap import Bootstrap
 from flask import Flask,render_template,request
-from flask_login import LoginManager
+from flask_bootstrap import Bootstrap
+from flask_login import LoginManager,current_user
 from flask_restful import Resource, Api
+from flask_principal import Principal, Permission, RoleNeed,identity_loaded,identity_changed,Identity,AnonymousIdentity,UserNeed
 from free_shark.models import user
 from free_shark import resources
 from free_shark import auth,db
@@ -33,7 +33,8 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(resources.bp)
    
-
+    principals = Principal(app)
+    principals.init_app(app)
 
     login_manager=LoginManager()   
     login_manager.init_app(app)
@@ -47,6 +48,14 @@ def create_app(test_config=None):
 
     # a simple page that says hello
     
+    @identity_loaded.connect_via(app)
+    def on_identity_loaded(sender, identity):
+        print("indentity加载完毕!")
+        identity.user=current_user
+        if current_user is not None:
+            identity.provides.add(UserNeed(current_user.id))
+        for role in current_user.role:
+            identity.provides.add(RoleNeed(role))
 
     @app.route('/db')
     def test_db():

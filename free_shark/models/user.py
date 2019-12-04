@@ -1,4 +1,6 @@
-from flask_login import UserMixin
+from flask import current_app
+from flask_login import UserMixin,current_user
+
 from werkzeug.security import check_password_hash, generate_password_hash
 import re
 from free_shark.db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
@@ -39,6 +41,18 @@ class User(UserMixin):
 
     def login(self):
         self._activite_flag=True
+
+    @property
+    def role(self):
+        ans=[]
+        if self.status==0:
+            ans.append("forbid")
+            return ans
+        if self.type==1:
+            ans.append("user")
+        elif self.type==0:
+            ans.append("admin")
+        return ans
 
     @property
     def id(self):
@@ -302,8 +316,6 @@ class User(UserMixin):
             db.rollback()
             abort(500)
         
-
-
     
 
 
