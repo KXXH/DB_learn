@@ -6,41 +6,28 @@
 <input type="hidden" value={{ page.current }} id="current">
 <input type="hidden" value={{ page.get_from() }} id="from">
 <input type="hidden" value={{ page.get_to() }} id="to">
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCommodity">
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
     上架商品
 </button>
 
 <!-- Modal -->
-<div class="modal fade" id="uploadCommodity" tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="uploadCommodityLabel">上架你的商品</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/commodity/upload" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
-                    商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name"><br>
-                    商品种类：<input type="text" id="new_commodity_type" name="new_commodity_type"><br>
-                    价格：<input type="number" id="new_commodity_price" name="new_commodity_price"><br>
-                    介绍：<textarea id="new_commodity_introduction" name="new_commodity_introduction"></textarea><br>
-                    上传你的实拍图
-                    <br>
-                    <input type="file" id="photo1" name="photo1">
-                    <input type="file" id="photo1" name="photo2">
-                    <input type="file" id="photo1" name="photo3">
-                    <input type="file" id="photo1" name="photo4">
-                    <input type="file" id="photo1" name="photo5">
-                    
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                    <button type="submit" class="btn btn-primary">上架</button>
-                </div>
-            </form>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
         </div>
     </div>
 </div>
@@ -65,21 +52,8 @@
         <br>
         商品介绍： {{ commodity.commodity_introduction }}
         <br>
-        {% if commodity.commodity_photo_url1 %}
-            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url1 }} >
-        {% endif %}
-        {% if commodity.commodity_photo_url2 %}
-            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url2 }}>
-        {% endif %}
-        {% if commodity.commodity_photo_url3 %}
-            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url3 }}>
-        {% endif %}
-        {% if commodity.commodity_photo_url4 %}
-            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url4 }}>
-        {% endif %}
-        {% if commodity.commodity_photo_url5 %}
-            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url5 }}>
-        {% endif %}
+        实拍图
+        <br>
     </li>
     {% endfor %}
 </ul>
@@ -115,7 +89,7 @@
         $("#"+current).parent().addClass("active");
     }
     function choose_page(){
-        window.location = "/commodity/index?commodity_type=" + $("#commodity_type").val()
+        window.location = "/hello?commodity_type=" + $("#commodity_type").val()
             + "&commodity_name=" + $("#commodity_name").val()+"&current="+current;
     }
     function pre_page(){
@@ -133,7 +107,7 @@
 
 
     function search(){
-        window.location = "/commodity/index?commodity_type=" + $("#commodity_type").val()
+        window.location = "/hello?commodity_type=" + $("#commodity_type").val()
                             +"&commodity_name=" + $("#commodity_name").val();
     }
 </script>

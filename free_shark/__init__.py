@@ -1,11 +1,12 @@
 import os
 
 from flask_bootstrap import Bootstrap
-from flask import (Blueprint,flash,g,render_template,request,session,redirect,url_for,render_template_string,current_app,Flask)
-from free_shark.entity.Page import Page
-from free_shark.util.json_help import make_json
+from flask import Flask,render_template,request
 from flask_login import LoginManager
-from flask_uploads import UploadSet, IMAGES, configure_uploads, ALL
+from free_shark.models.commodity import Commodity
+from free_shark.entity.Page import Page
+import sys
+
 try:
     from models import user
 except ModuleNotFoundError:
@@ -18,19 +19,11 @@ try:
 except ModuleNotFoundError:
     from . import auth
 
-try:
-    import comController
-except ModuleNotFoundError:
-    from . import comController
-
-path = os.path.split(os.path.abspath(__file__))[0]
-UPLOAD_FOLDER = path + "\\static\\image"
 
 def create_app(test_config=None):
     app=Flask(__name__)
     app.config.from_pyfile('free_shark.cfg')
     app.config.from_pyfile('db_config.cfg')
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     if test_config is None:
     # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
@@ -51,7 +44,6 @@ def create_app(test_config=None):
     db.init_app(app)
     
     app.register_blueprint(auth.bp)
-    app.register_blueprint(comController.bp)
 
     login_manager=LoginManager()   
     login_manager.init_app(app)
@@ -73,12 +65,30 @@ def create_app(test_config=None):
         print(test_db)
         return "aaa"
 
-    @app.route('/test')
-    def test_path():
-        return path
+    @app.route('/hello',methods=("POST","GET"))
+    def hello():
+        if request.method == 'GET':
+            current = request.args.get('current') or 1
+            current = int(current)
+            commodity_name = request.args.get('commodity_name') or None
+            commodity_type = request.args.get('commodity_type') or None
+            print(commodity_name)
+            print(commodity_type)
+            r = Commodity.search_commodity(-1,0,sys.maxsize,1,commodity_type,commodity_name)
+            # 设置分页
+            page = Page()
+            page.current = current
+            page.rows = r
+            page.path = '/hello'
+            offset = page.get_offset()
+            coms = Commodity.search_commodity(-1,offset,page.limit,0,commodity_type,commodity_name)
+            return render_template("commodity.html", commodities=coms,page=page)
 
     return app
 
 if __name__=="__main__":
     app=create_app()
     app.run()
+
+
+    

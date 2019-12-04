@@ -1,18 +1,18 @@
 from free_shark.db import get_db
-import time
+
 class Commodity:
     def __init__(self,**kwargs):
         self._id = kwargs.get('id',None)
-        self._commodity_name = kwargs.get('commodity_name', '')
-        self._commodity_type = kwargs.get('commodity_type', '')
-        self._owner_student_id = kwargs.get('owner_student_id', '')
-        self._price = kwargs.get('price', 0)
-        self._commodity_introduction = kwargs.get('commodity_introduction', '')
-        self._commodity_photo_url1 = kwargs.get('commodity_photo_url1', '')
-        self._commodity_photo_url2 = kwargs.get('commodity_photo_url2', '')
-        self._commodity_photo_url3 = kwargs.get('commodity_photo_url3', '')
-        self._commodity_photo_url4 = kwargs.get('commodity_photo_url4', '')
-        self._commodity_photo_url5 = kwargs.get('commodity_photo_url5', '')
+        self._commodity_name = kwargs.get('commodity_name', None)
+        self._commodity_type = kwargs.get('commodity_type', None)
+        self._owner_student_id = kwargs.get('owner_student_id', None)
+        self._price = kwargs.get('price', None)
+        self._commodity_introduction = kwargs.get('commodity_introduction', None)
+        self._commodity_photo_url1 = kwargs.get('commodity_photo_url1', None)
+        self._commodity_photo_url2 = kwargs.get('commodity_photo_url2', None)
+        self._commodity_photo_url3 = kwargs.get('commodity_photo_url3', None)
+        self._commodity_photo_url4 = kwargs.get('commodity_photo_url4', None)
+        self._commodity_photo_url5 = kwargs.get('commodity_photo_url5', None)
         self._create_time = kwargs.get('create_time', None)
 
     @property
@@ -115,23 +115,14 @@ class Commodity:
 #       传入一个Commodity实例进行上架，为实例方法
     
     def add_commodity(self):
-        self._create_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         success = 0
         sql = "insert into commodity(commodity_name,commodity_type,owner_student_id,price,\
             commodity_introduction,commodity_photo_url1,commodity_photo_url2,commodity_photo_url3,\
             commodity_photo_url4,commodity_photo_url5,create_time) \
             VALUES('%s','%s','%s',%.2f,'%s','%s','%s','%s','%s','%s','%s')" % (
-                self._commodity_name, 
-                self._commodity_type, 
-                self._owner_student_id, 
-                self._price,
-                self._commodity_introduction, 
-                self._commodity_photo_url1,
-                self._commodity_photo_url2,
-                self._commodity_photo_url3, 
-                self._commodity_photo_url4, 
-                self._commodity_photo_url5, 
-                self._create_time)
+                self._commodity_name, self._commodity_type, self._owner_student_id, self._price,
+                self._commodity_introduction, self._commodity_photo_url1,self._commodity_photo_url2,
+                self._commodity_photo_url3, self._commodity_photo_url4, self._commodity_photo_url5, self._create_time)
         
         try:
             db = get_db()
