@@ -23,7 +23,7 @@ def login():
             # next_is_valid should check if the user has valid
             # permission to access the `next` url
             flash("Hi %s!" % c_user.username,"success")
-            return redirect(next or url_for('index'))
+            return redirect(next or url_for('auth.login'))
             
             #return render_template_string("Hi {{ current_user.username }}!")   #需要修改模板
         else:
