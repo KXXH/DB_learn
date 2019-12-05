@@ -1,4 +1,4 @@
-from free_shark.db import get_db
+from free_shark.db import get_db, get_db_with_dict_cursor
 import time
 class Commodity:
     def __init__(self,**kwargs):
@@ -14,7 +14,7 @@ class Commodity:
         self._commodity_photo_url4 = kwargs.get('commodity_photo_url4', '')
         self._commodity_photo_url5 = kwargs.get('commodity_photo_url5', '')
         self._status = kwargs.get('status', 0)
-        self._create_time = kwargs.get('create_time', None)
+        self._create_time = kwargs.get('create_time', '')
 
     @property
     def id(self):
@@ -60,6 +60,9 @@ class Commodity:
     def commodity_photo_url5(self):
         return self._commodity_photo_url5
     
+
+    # 有问题
+    # 还是用_create_time把
     @property
     def create_time(self):
         return self._create_time
@@ -175,7 +178,7 @@ class Commodity:
         return success
 #       搜索商品
 #       需要传入用户id（为-1时表示搜索全部），商品种类，商品名称
-#       需要改进 加入模糊搜索。。
+#       is_count 表示返回长度还是列表
     def search_commodity(owner_student_id, offset, limit,is_count=0,commodity_type=None, commodity_name=None,status = 0):
         r = []
         if commodity_type != None and commodity_name!= None:
@@ -269,10 +272,34 @@ class Commodity:
 
         return r
 
+    def get_commodity_by_id(id):
+
+        sql = "select * from commodity where id = %d" % (id)
+        s = Commodity()
+        try:
+            db = get_db_with_dict_cursor()
+            cursor = db.cursor()
+            print(sql)
+            cursor.execute(sql)
+            result = cursor.fetchall()[0]
+            time = result['create_time']
+            result['create_time'] = time.strftime(
+                '%Y-%m-%d %H:%M:%S')
+            #print(type(result['create_time']))
+            commodity = Commodity(**result)
+            s = commodity
+        except:
+            db.rollback()
+
+        db.close()
+        return s
+
 #       是否需要加入更新操作？
 #       还是加入把
 
     def update_commodity(self):
+        self._create_time = time.strftime(
+            '%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         success = 0
         sql = "update commodity set commodity_name = '%s',commodity_type='%s',owner_student_id='%s',price=%.2f,\
             commodity_introduction='%s',commodity_photo_url1='%s',commodity_photo_url2='%s',commodity_photo_url3='%s',\
@@ -291,7 +318,10 @@ class Commodity:
             db.commit()
             success = 1
         except:
+            print(sql)
             db.rollback()
 
         db.close()
         return success
+
+    

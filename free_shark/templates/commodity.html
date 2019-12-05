@@ -13,6 +13,8 @@
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCommodity">
         上架商品
     </button>
+
+    <button onclick="myCommodity()">我的</button>
 {% endif %}
 
 <!-- Modal -->
@@ -114,6 +116,9 @@
         if(current==1){
             $("#pre_page").addClass("disabled");
         }
+        if (to == 0) {
+            $("#next_page").addClass("disabled");
+        }
         if(current == to){
             $("#next_page").addClass("disabled");
         }
@@ -140,5 +145,9 @@
     function search(){
         window.location = "/commodity/index?commodity_type=" + $("#commodity_type").val()
                             +"&commodity_name=" + $("#commodity_name").val();
+    }
+
+    function myCommodity(){
+        window.location = "/commodity/my_commodity";
     }
 </script>

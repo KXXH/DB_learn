@@ -1,0 +1,188 @@
+<head>
+    {{ bootstrap.load_css() }}
+    {{ bootstrap.load_js() }}
+</head>
+
+<body onload="init()">
+    <input type="hidden" value={{ page.current }} id="current">
+    <input type="hidden" value={{ page.get_from() }} id="from">
+    <input type="hidden" value={{ page.get_to() }} id="to">
+    
+    <div>
+        商品列表
+        <label>商品种类</label>
+        <input type="text" name="choose_commodity_type" id="commodity_type" {% if request.args.get('commodity_type') %}
+            value={{ request.args.get('commodity_type') }} {% endif %}>
+        <label>商品名称</label>
+        <input type="text" name="choose_commodity_name" id="commodity_name" {% if request.args.get('commodity_name') %}
+            value={{ request.args.get('commodity_name') }} {% endif %}>
+        <button onclick="search()">搜索</button>
+    </div>
+    <ul class="list-group">
+        {% for commodity in commodities %}
+        <li class="list-group-item">
+            商品名称： {{ commodity.commodity_name }}
+            <br>
+            商品种类： {{ commodity.commodity_type }}
+            <br>
+            价格： {{ commodity.price }}
+            <br>
+            商品介绍： {{ commodity.commodity_introduction }}
+            <br>
+            {% if commodity.commodity_photo_url1 %}
+            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url1 }}>
+            {% endif %}
+            {% if commodity.commodity_photo_url2 %}
+            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url2 }}>
+            {% endif %}
+            {% if commodity.commodity_photo_url3 %}
+            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url3 }}>
+            {% endif %}
+            {% if commodity.commodity_photo_url4 %}
+            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url4 }}>
+            {% endif %}
+            {% if commodity.commodity_photo_url5 %}
+            <img alt="photo" height="100px" src={{ commodity.commodity_photo_url5 }}>
+            {% endif %}
+
+            {% set id = '#' + commodity.id|string %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target={{ id }}>
+                编辑商品
+            </button>
+
+            <div class="modal fade" id={{ commodity.id }} tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="uploadCommodityLabel">编辑你的商品</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="/commodity/modify" method="POST" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <input type="hidden" id="commodity_id" name="commodity_id" value={{ commodity.id }} />
+                                商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name" value={{ commodity.commodity_name }}><br>
+                                商品种类：<input type="text" id="new_commodity_type" name="new_commodity_type" value={{ commodity.commodity_type }}><br>
+                                价格：<input type="number" id="new_commodity_price" name="new_commodity_price" value={{ commodity.price }}><br>
+                                介绍：<textarea id="new_commodity_introduction" name="new_commodity_introduction" >{{ commodity.commodity_introduction }}</textarea><br>
+                                上传你的实拍图
+                                <br>
+                                <input type="file" id="photo1" name="photo1">
+                                <input type="file" id="photo1" name="photo2">
+                                <input type="file" id="photo1" name="photo3">
+                                <input type="file" id="photo1" name="photo4">
+                                <input type="file" id="photo1" name="photo5">
+            
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">上架</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="delete_btn" class="btn btn-primary">
+                删除商品
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- 提示框 -->
+    <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="hintModalLabel">提示</h5>
+                </div>
+                <div class="modal-body" id="hintBody">
+                    发送完毕!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <!-- {{ page.get_list() }} -->
+            <li class="page-item" id="pre_page">
+                <a class="page-link" href="javascript:void(0);" onclick="pre_page()">Previous</a>
+            </li>
+            {% for i in page.get_list()%}
+            <li class="page-item"><a class="page-link" href="javascript:void(0);" id={{ i }}
+                    onclick="change_page(this.id)">{{ i }}</a></li>
+            {%  endfor %}
+            <li class="page-item" id="next_page">
+                <a class="page-link" href="javascript:void(0);" onclick="next_page()">Next</a>
+            </li>
+        </ul>
+    </nav>
+</body>
+<script>
+    var current = parseInt($("#current").val())
+    var from = parseInt($("#from").val())
+    var to = parseInt($("#to").val())
+
+    $(document).ready(function () {
+        //表单异步提交
+        $("#delete_btn").on("click", function () {
+            console.log('我要删除了')
+            $.post(
+                '/commodity/delete',
+                {'id':$('#commodity_id').val()},
+                function(data){
+                    if(data.code==200){
+                        $("#hintBody").text("发送成功！");
+                    }else{
+                        $("#hintBody").text(data.msg);
+                    }
+
+                    $("#hintModal").modal("show");
+                    setTimeout(function () {
+                        $("#hintModal").modal("hide");
+                        location.reload();
+                    }, 2000);
+                }
+            )
+        })
+    })
+
+    function init() {
+        if (current == 1) {
+            $("#pre_page").addClass("disabled");
+        }
+        if (to == 0) {
+            $("#next_page").addClass("disabled");
+        }
+        if (current == to) {
+            $("#next_page").addClass("disabled");
+        }
+        $("#" + current).parent().addClass("active");
+    }
+    function choose_page() {
+        window.location = "/commodity/my_commodity?commodity_type=" + $("#commodity_type").val()
+            + "&commodity_name=" + $("#commodity_name").val() + "&current=" + current;
+    }
+    function pre_page() {
+        current = current - 1 < from ? from : current - 1
+        choose_page()
+    }
+    function next_page() {
+        current = current + 1 > to ? to : current + 1
+        choose_page()
+    }
+    function change_page(id) {
+        current = id
+        choose_page()
+    }
+
+
+    function search() {
+        window.location = "/commodity/my_commodity?commodity_type=" + $("#commodity_type").val()
+            + "&commodity_name=" + $("#commodity_name").val();
+    }
+</script>
