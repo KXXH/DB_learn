@@ -1,0 +1,40 @@
+<head>
+    {{ bootstrap.load_css() }}
+    {% block style %}{% endblock %}
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <a class="navbar-brand" href="#">闲鲨</a>
+        <div class="navbar-nav mr-auto">
+            {% from 'bootstrap/nav.html' import render_nav_item %}
+            {{ render_nav_item('hello','首页') }}
+            {{ render_nav_item('auth.login','登录') }}
+            {{ render_nav_item('auth.logout','登出') }}
+        </div> 
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{category}} " role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {%block content %}{% endblock %}
+    </div>
+    {{ bootstrap.load_js() }}
+    <script>
+        var csrf_token = "{{ csrf_token() }}";
+    
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            }
+        });
+    </script>
+</body>

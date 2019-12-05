@@ -3,6 +3,7 @@ from flask import Flask,render_template,request
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager,current_user
 from flask_restful import Resource, Api
+from flask_wtf.csrf import CSRFProtect
 from flask_principal import Principal, Permission, RoleNeed,identity_loaded,identity_changed,Identity,AnonymousIdentity,UserNeed
 from free_shark.models import user
 from free_shark import resources
@@ -49,11 +50,19 @@ def create_app(test_config=None):
 
     bootstrap=Bootstrap()
     bootstrap.init_app(app)
-
+  
+    csrf=CSRFProtect(app)
+    csrf.init_app(app)
 
     @login_manager.user_loader
     def load_user(userid):
-        return user.User.get_user_by_id(int(userid))
+        try:
+            id=int(userid)
+            return user.User.get_user_by_id(id)
+        except:
+            return user.User.get_user_by_token(userid) 
+
+
 
     # a simple page that says hello
     

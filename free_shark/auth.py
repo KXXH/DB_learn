@@ -19,18 +19,19 @@ def login():
     if form.validate_on_submit():
         c_user=user.User.attempt_login(form.data['username'],form.data['password'])   #需要按需加载用户信息
         if c_user.is_authenticated():
-            login_user(c_user)  #需要加入next跳转
+            login_user(c_user,remember=form.data['remember'])  #需要加入next跳转
             identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(c_user.id))
             next = request.args.get('next')
             print(next)
             # next_is_valid should check if the user has valid
             # permission to access the `next` url
-            
+            flash("Hi %s!" % c_user.username,"success")
             return redirect(next or url_for('index'))
+            
             #return render_template_string("Hi {{ current_user.username }}!")   #需要修改模板
         else:
-            return "wrong password!"
+            flash("wrong password!","danger")
     return render_template("login.html",form=form)
 
 
