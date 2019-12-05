@@ -29,6 +29,7 @@
                 </button>
             </div>
             <form action="/commodity/upload" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                 <div class="modal-body">
                     商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name"><br>
                     商品种类：<input type="text" id="new_commodity_type" name="new_commodity_type"><br>

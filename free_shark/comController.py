@@ -219,7 +219,6 @@ def delete():
     if request.method == 'POST':
         data = request.get_data()
         data = str(data,'utf-8')
-        print(data)
         id = int(data.split('=')[-1])
         print(id)
         if Commodity.delete_commodity_by_id(id) == 1:

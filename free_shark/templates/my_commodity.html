@@ -1,8 +1,6 @@
-<head>
-    {{ bootstrap.load_css() }}
-    {{ bootstrap.load_js() }}
-</head>
+{% extends "layout.html" %}
 
+{% block content %}
 <body onload="init()">
     <input type="hidden" value={{ page.current }} id="current">
     <input type="hidden" value={{ page.get_from() }} id="from">
@@ -62,6 +60,7 @@
                             </button>
                         </div>
                         <form action="/commodity/modify" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                             <div class="modal-body">
                                 <input type="hidden" id="commodity_id" name="commodity_id" value={{ commodity.id }} />
                                 商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name" value={{ commodity.commodity_name }}><br>
@@ -123,6 +122,8 @@
         </ul>
     </nav>
 </body>
+{% endblock %}
+{% block script_at_end %}
 <script>
     var current = parseInt($("#current").val())
     var from = parseInt($("#from").val())
@@ -188,3 +189,5 @@
             + "&commodity_name=" + $("#commodity_name").val();
     }
 </script>
+
+{% endblock %}
