@@ -13,6 +13,7 @@ class Commodity:
         self._commodity_photo_url3 = kwargs.get('commodity_photo_url3', '')
         self._commodity_photo_url4 = kwargs.get('commodity_photo_url4', '')
         self._commodity_photo_url5 = kwargs.get('commodity_photo_url5', '')
+        self._status = kwargs.get('status', 0)
         self._create_time = kwargs.get('create_time', None)
 
     @property
@@ -63,6 +64,10 @@ class Commodity:
     def create_time(self):
         return self._create_time
 
+    @property
+    def status(self):
+        return self._status
+
 
 
     @commodity_name.setter
@@ -109,6 +114,10 @@ class Commodity:
     def create_time(self,new_create_time):
         self._create_time = new_create_time
 
+    @status.setter
+    def create_time(self,new_status):
+        self._status = new_status
+
     
 
 #       上架商品
@@ -119,8 +128,8 @@ class Commodity:
         success = 0
         sql = "insert into commodity(commodity_name,commodity_type,owner_student_id,price,\
             commodity_introduction,commodity_photo_url1,commodity_photo_url2,commodity_photo_url3,\
-            commodity_photo_url4,commodity_photo_url5,create_time) \
-            VALUES('%s','%s','%s',%.2f,'%s','%s','%s','%s','%s','%s','%s')" % (
+            commodity_photo_url4,commodity_photo_url5,create_time,status) \
+            VALUES('%s','%s','%s',%.2f,'%s','%s','%s','%s','%s','%s','%s',%d)" % (
                 self._commodity_name, 
                 self._commodity_type, 
                 self._owner_student_id, 
@@ -131,7 +140,8 @@ class Commodity:
                 self._commodity_photo_url3, 
                 self._commodity_photo_url4, 
                 self._commodity_photo_url5, 
-                self._create_time)
+                self._create_time,
+                self._status)
         
         try:
             db = get_db()
@@ -166,57 +176,65 @@ class Commodity:
 #       搜索商品
 #       需要传入用户id（为-1时表示搜索全部），商品种类，商品名称
 #       需要改进 加入模糊搜索。。
-    def search_commodity(owner_student_id, offset, limit,is_count=0,commodity_type=None, commodity_name=None):
+    def search_commodity(owner_student_id, offset, limit,is_count=0,commodity_type=None, commodity_name=None,status = 0):
         r = []
         if commodity_type != None and commodity_name!= None:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
                     AND commodity_name LIKE '%%%s%%' \
+                    AND status = %d \
                     order by create_time desc \
-                    limit %d,%d" % (commodity_type, commodity_name,offset,limit)
+                    limit %d,%d" % (commodity_type, commodity_name,status,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
                     AND owner_student_id = '%s' \
+                    AND status = %d \
                     AND commodity_name LIKE '%%%s%%' \
                     order by create_time desc\
-                    limit %d,%d" % (commodity_type, owner_student_id, commodity_name,offset,limit)
+                    limit %d,%d" % (commodity_type, owner_student_id, status,commodity_name,offset,limit)
 
         elif commodity_type == None and commodity_name != None:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_name LIKE '%%%s%%' \
+                    AND status = %d \
                     order by create_time desc \
-                    limit %d,%d" % (commodity_name,offset,limit)
+                    limit %d,%d" % (commodity_name,status,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE owner_student_id = '%s' \
                     AND commodity_name LIKE '%%%s%%' \
+                    AND status = %d \
                     order by create_time desc\
-                    limit %d,%d" % (owner_student_id, commodity_name,offset,limit)
+                    limit %d,%d" % (owner_student_id, commodity_name,status,offset,limit)
         elif commodity_type != None and commodity_name == None:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
+                    AND status = %d \
                     order by create_time desc \
-                    limit %d,%d" % (commodity_type,offset,limit)
+                    limit %d,%d" % (commodity_type,status,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE commodity_type LIKE '%%%s%%'\
                     AND owner_student_id = '%s' \
+                    AND status = %d \
                     order by create_time desc \
-                    limit %d,%d" % (commodity_type, owner_student_id,offset,limit)
+                    limit %d,%d" % (commodity_type, owner_student_id,status,offset,limit)
         else:
             if owner_student_id == -1:
                 sql = "SELECT * FROM commodity \
+                    WHERE status = %d \
                     order by create_time desc \
-                        limit %d,%d" % (offset,limit)
+                        limit %d,%d" % (status,offset,limit)
             else:
                 sql = "SELECT * FROM commodity \
                     WHERE owner_student_id = '%s' \
+                    AND status = %d \
                     order by create_time desc \
-                    limit %d,%d" % (owner_student_id,offset,limit)
+                    limit %d,%d" % (owner_student_id,status,offset,limit)
 
         db = get_db()
         cursor = db.cursor()
@@ -258,11 +276,12 @@ class Commodity:
         success = 0
         sql = "update commodity set commodity_name = '%s',commodity_type='%s',owner_student_id='%s',price=%.2f,\
             commodity_introduction='%s',commodity_photo_url1='%s',commodity_photo_url2='%s',commodity_photo_url3='%s',\
-            commodity_photo_url4='%s',commodity_photo_url5='%s',create_time='%s' \
+            commodity_photo_url4='%s',commodity_photo_url5='%s',create_time='%s',status=%d \
             where id = %d" % (
                 self._commodity_name, self._commodity_type, self._owner_student_id, self._price,
                 self._commodity_introduction, self._commodity_photo_url1,self._commodity_photo_url2,
-                self._commodity_photo_url3, self._commodity_photo_url4, self._commodity_photo_url5, self._create_time,self._id)
+                self._commodity_photo_url3, self._commodity_photo_url4, self._commodity_photo_url5, 
+                self._create_time,self._status,self._id)
         
         try:
             db = get_db()

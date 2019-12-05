@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import re
+from flask_login import login_user,login_required,logout_user,current_user
 
 bp=Blueprint('commodity',__name__,url_prefix='/commodity')
 
@@ -59,6 +60,7 @@ def solve_photo(file):
     else:
         return 2
 
+@login_required
 @bp.route('/upload',methods=['POST','GET'])
 def upload():
     if request.method == 'POST':
