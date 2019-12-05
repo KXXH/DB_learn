@@ -50,6 +50,7 @@ def create_app(test_config=None):
     bootstrap=Bootstrap()
     bootstrap.init_app(app)
 
+
     @login_manager.user_loader
     def load_user(userid):
         return user.User.get_user_by_id(int(userid))
@@ -60,10 +61,12 @@ def create_app(test_config=None):
     def on_identity_loaded(sender, identity):
         print("indentity加载完毕!")
         identity.user=current_user
-        if current_user is not None:
+        if current_user is not None and not current_user.is_anonymous:
             identity.provides.add(UserNeed(current_user.id))
-        for role in current_user.role:
-            identity.provides.add(RoleNeed(role))
+            for role in current_user.role:
+                identity.provides.add(RoleNeed(role))
+        else:
+            identity.provides.add(RoleNeed("anonymous"))
 
     return app
 
