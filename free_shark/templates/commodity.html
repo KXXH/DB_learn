@@ -1,7 +1,5 @@
-<head>
-    {{ bootstrap.load_css() }}
-    {{ bootstrap.load_js() }}
-</head>
+{% extends "layout.html" %}
+{% block content %}
 <body onload="init()">
 <input type="hidden" value={{ page.current }} id="current">
 <input type="hidden" value={{ page.get_from() }} id="from">
@@ -108,6 +106,8 @@
     </ul>
 </nav>
 </body>
+{% endblock %}
+{% block script_at_end %}
 <script>
     var current = parseInt($("#current").val())
     var from = parseInt($("#from").val())
@@ -152,3 +152,4 @@
         window.location = "/commodity/my_commodity";
     }
 </script>
+{% endblock %}
