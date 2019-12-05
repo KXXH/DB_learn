@@ -73,6 +73,16 @@ def test_del_user_api_case1(admin_login,username):
         user=User.get_user_by_username(username)
         assert user is None
 
+def test_del_user_api_case2(admin_login):
+    client,app=admin_login
+    with app.app_context():
+        id=current_user.id
+    rv=client.post("/api/user/delete",data={
+        "id":id
+    })
+    code=rv.status_code
+    assert code==401
+
 @pytest.mark.parametrize("username",["test1","test2"])
 def test_search_user_with_username_api_case1(admin_login,username):
     client,app=admin_login

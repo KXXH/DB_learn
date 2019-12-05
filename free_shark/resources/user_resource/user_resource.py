@@ -10,13 +10,13 @@ from free_shark.resources.configs import Base_Response_Fields,User_Search_Fields
 class UserUpdatePermission(Permission):
     def __init__(self,user_id):
         super().__init__()
-        self.needs=set((RoleNeed("admin"),UserNeed(user_id)))  #only user himself and admin can edit
+        self.needs=set([RoleNeed("admin"),UserNeed(user_id)])  #only user himself and admin can edit
 
 
 class UserDeletionPermission(Permission):
     def __init__(self,user_id):
         super().__init__(RoleNeed("admin"))
-        self.excludes=set((UserNeed(user_id)))  #用户不能删除用户自身
+        self.excludes=set([UserNeed(user_id)])  #用户不能删除用户自身
 
 
 
@@ -71,7 +71,7 @@ class UserResourceDelete(Resource):
 
     def __init__(self):
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument("id",required=True)
+        self.parser.add_argument("id",required=True,type=int)
 
     @admin_login_required
     @marshal_with(Base_Response_Fields().resource_fields)
