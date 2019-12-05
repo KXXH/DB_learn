@@ -214,11 +214,13 @@ def modify():
 @bp.route('/delete', methods=['POST', 'GET'])
 @login_required
 def delete():
+    if request.method == 'GET':
+        return "走错了"
     if request.method == 'POST':
         data = request.get_data()
-        json_data = json.loads(data.decode("utf-8"))
-        print(json_data)
-        id = json_data.get("id")
+        data = str(data,'utf-8')
+        print(data)
+        id = int(data.split('=')[-1])
         print(id)
         if Commodity.delete_commodity_by_id(id) == 1:
             return make_json(200,'delete success')

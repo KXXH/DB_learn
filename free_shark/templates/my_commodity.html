@@ -45,12 +45,13 @@
             <img alt="photo" height="100px" src={{ commodity.commodity_photo_url5 }}>
             {% endif %}
 
-            {% set id = '#' + commodity.id|string %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target={{ id }}>
+            {% set target = '#uploadCommodity' + commodity.id|string %}
+            {% set target_id = 'uploadCommodity' + commodity.id|string %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target={{ target }}>
                 编辑商品
             </button>
 
-            <div class="modal fade" id={{ commodity.id }} tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
+            <div class="modal fade" id={{ target_id }} tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
                 aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -84,8 +85,8 @@
                     </div>
                 </div>
             </div>
-
-            <button type="button" id="delete_btn" class="btn btn-primary">
+            {% set delete_id = 'delete_btn_' + commodity.id|string %}
+            <button type="button" id={{ delete_id }} class="btn btn-primary" onclick="detele_commodity(this.id)">
                 删除商品
             </button>
         </li>
@@ -127,29 +128,30 @@
     var from = parseInt($("#from").val())
     var to = parseInt($("#to").val())
 
-    $(document).ready(function () {
-        //表单异步提交
-        $("#delete_btn").on("click", function () {
-            console.log('我要删除了')
-            $.post(
-                '/commodity/delete',
-                {'id':$('#commodity_id').val()},
-                function(data){
-                    if(data.code==200){
-                        $("#hintBody").text("发送成功！");
-                    }else{
-                        $("#hintBody").text(data.msg);
-                    }
-
-                    $("#hintModal").modal("show");
-                    setTimeout(function () {
-                        $("#hintModal").modal("hide");
-                        location.reload();
-                    }, 2000);
+    function detele_commodity(id){
+        console.log('我要删除了')
+        ids = id.split("_")
+        commodity_id = ids[ids.length-1]
+        console.log(commodity_id)
+        $.post(
+            '/commodity/delete',
+            { 'id': commodity_id },
+            function (data) {
+                if (data.code == 200) {
+                    $("#hintBody").text("删除成功！");
+                } else {
+                    $("#hintBody").text(data.msg);
                 }
-            )
-        })
-    })
+
+                $("#hintModal").modal("show");
+                setTimeout(function () {
+                    $("#hintModal").modal("hide");
+                    location.reload();
+                }, 2000);
+            }
+        )
+    }
+
 
     function init() {
         if (current == 1) {
