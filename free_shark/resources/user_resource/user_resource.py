@@ -6,6 +6,7 @@ from free_shark.exceptions.user_model_exception import UsernameDuplicate,UserNot
 from flask_login import login_required,current_user
 from free_shark.utils import admin_login_required,drop_value_from_request
 from free_shark.resources.configs import Base_Response_Fields,User_Search_Fields
+from free_shark.resources.user_resource import user_register_resource
 
 class UserUpdatePermission(Permission):
     def __init__(self,user_id):
@@ -19,6 +20,7 @@ class UserDeletionPermission(Permission):
         self.excludes=set([UserNeed(user_id)])  #即使是管理员也不能删除自身
 
 
+user_register_permission=user_register_resource.UserRegisterPermission()
 
 class UserResourceAdd(Resource):
     """增加用户"""
@@ -30,7 +32,7 @@ class UserResourceAdd(Resource):
         self.parser.add_argument("email",required=True)
         pass
 
-    @admin_login_required
+    @user_register_permission.require()
     @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         d=self.parser.parse_args()
