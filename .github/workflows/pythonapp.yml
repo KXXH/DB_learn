@@ -19,6 +19,8 @@ jobs:
         pip install -r requirements.txt
     - name: Lint with flake8
       run: |
+        set FLASK_APP=free_shark
+        set FLASK_ENV=development 
         flask run
     - name: Test with pytest
       run: |
