@@ -2,10 +2,7 @@ from flask import (Blueprint,flash,g,render_template,request,session,redirect,ur
 from werkzeug.security import check_password_hash,generate_password_hash
 from free_shark.forms import login_form,student_form
 from free_shark.models import user
-try:
-    from models import student
-except ModuleNotFoundError:
-    from .models import student
+from free_shark.models import student
 from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity,AnonymousIdentity
 from flask_login import login_user,login_required,logout_user,current_user
 

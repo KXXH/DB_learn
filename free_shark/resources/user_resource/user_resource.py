@@ -1,19 +1,27 @@
-from flask import abort
+from flask import abort,current_app
 from flask_restful import Resource,reqparse,fields, marshal_with
 from flask_principal import Permission,RoleNeed,UserNeed
 from free_shark.models.user import User
 from free_shark.exceptions.user_model_exception import UsernameDuplicate,UserNotFound
-from flask_login import login_required
+from flask_login import login_required,current_user
 from free_shark.utils import admin_login_required,drop_value_from_request
 from free_shark.resources.configs import Base_Response_Fields,User_Search_Fields
 
 class UserUpdatePermission(Permission):
     def __init__(self,user_id):
-        need=(RoleNeed("admin"),UserNeed(user_id))  #only user himself and admin can edit
-        super().__init__(*need)
+        super().__init__()
+        self.needs=set((RoleNeed("admin"),UserNeed(user_id)))  #only user himself and admin can edit
+
+
+class UserDeletionPermission(Permission):
+    def __init__(self,user_id):
+        super().__init__(RoleNeed("admin"))
+        self.excludes=set((UserNeed(user_id)))  #用户不能删除用户自身
+
+
 
 class UserResourceAdd(Resource):
-    
+    """增加用户"""
 
     def __init__(self):
         self.parser = reqparse.RequestParser()
@@ -36,7 +44,7 @@ class UserResourceAdd(Resource):
 
 
 class UserResourceSearch(Resource):
-    
+    """搜索用户"""
 
     def __init__(self):
         self.parser = reqparse.RequestParser()
@@ -59,7 +67,7 @@ class UserResourceSearch(Resource):
 
 
 class UserResourceDelete(Resource):
-    
+    """删除用户"""
 
     def __init__(self):
         self.parser = reqparse.RequestParser()
@@ -70,6 +78,9 @@ class UserResourceDelete(Resource):
     def post(self):
         d=self.parser.parse_args()
         id=d['id']
+        permission=UserDeletionPermission(id)
+        if not permission.can():
+            abort(401)
         user=User.get_user_by_id(id)
         if user is None:
             raise UserNotFound("id",id)
@@ -82,7 +93,7 @@ class UserResourceDelete(Resource):
 
 
 class UserResourceUpdate(Resource):
-    
+    """修改用户"""
 
     def __init__(self):
         self.parser=reqparse.RequestParser()
@@ -108,6 +119,10 @@ class UserResourceUpdate(Resource):
             user.password=d.get("password","")
         if d.get("email",None) is not None:
             user.email=d.get("email",None)
+        
+        if id==current_user.id:
+            current_app.login_manager.reload_user(user)
+
         return Base_Response_Fields("success!")
 
     def get(self):

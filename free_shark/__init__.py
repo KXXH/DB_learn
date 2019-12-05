@@ -44,6 +44,7 @@ def create_app(test_config=None):
     bootstrap=Bootstrap()
     bootstrap.init_app(app)
 
+
     @login_manager.user_loader
     def load_user(userid):
         return user.User.get_user_by_id(int(userid))
