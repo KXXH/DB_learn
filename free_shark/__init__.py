@@ -23,6 +23,7 @@ def create_app(test_config=None):
     app.config.from_pyfile('free_shark.cfg')
     app.config.from_pyfile('db_config.cfg')
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['WTF_CSRF_ENABLED'] = False
     if test_config is None:
     # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)

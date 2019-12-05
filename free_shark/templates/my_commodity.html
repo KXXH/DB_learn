@@ -1,8 +1,6 @@
-<head>
-    {{ bootstrap.load_css() }}
-    {{ bootstrap.load_js() }}
-</head>
+{% extends "layout.html" %}
 
+{% block content %}
 <body onload="init()">
     <input type="hidden" value={{ page.current }} id="current">
     <input type="hidden" value={{ page.get_from() }} id="from">
@@ -17,6 +15,7 @@
         <input type="text" name="choose_commodity_name" id="commodity_name" {% if request.args.get('commodity_name') %}
             value={{ request.args.get('commodity_name') }} {% endif %}>
         <button onclick="search()">搜索</button>
+        <button ><a href="/commodity/index">返回</a></button>
     </div>
     <ul class="list-group">
         {% for commodity in commodities %}
@@ -45,50 +44,59 @@
             <img alt="photo" height="100px" src={{ commodity.commodity_photo_url5 }}>
             {% endif %}
 
-            {% set target = '#uploadCommodity' + commodity.id|string %}
-            {% set target_id = 'uploadCommodity' + commodity.id|string %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target={{ target }}>
-                编辑商品
-            </button>
-
-            <div class="modal fade" id={{ target_id }} tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="uploadCommodityLabel">编辑你的商品</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+            <div>
+                {% set target = '#uploadCommodity' + commodity.id|string %}
+                {% set target_id = 'uploadCommodity' + commodity.id|string %}
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target={{ target }}>
+                    编辑商品
+                </button>
+                
+                <div class="modal fade" id={{ target_id }} tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="uploadCommodityLabel">编辑你的商品</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="/commodity/modify" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                <div class="modal-body">
+                                    <input type="hidden" id="commodity_id" name="commodity_id" value={{ commodity.id }} />
+                                    商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name"
+                                        value={{ commodity.commodity_name }}><br>
+                                    商品种类：<input type="text" id="new_commodity_type" name="new_commodity_type"
+                                        value={{ commodity.commodity_type }}><br>
+                                    价格：<input type="number" id="new_commodity_price" name="new_commodity_price"
+                                        value={{ commodity.price }}><br>
+                                    介绍：<textarea id="new_commodity_introduction"
+                                        name="new_commodity_introduction">{{ commodity.commodity_introduction }}</textarea><br>
+                                    上传你的实拍图
+                                    <br>
+                                    <input type="file" id="photo1" name="photo1">
+                                    <input type="file" id="photo1" name="photo2">
+                                    <input type="file" id="photo1" name="photo3">
+                                    <input type="file" id="photo1" name="photo4">
+                                    <input type="file" id="photo1" name="photo5">
+                
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                    <button type="submit" class="btn btn-primary">上架</button>
+                                </div>
+                            </form>
                         </div>
-                        <form action="/commodity/modify" method="POST" enctype="multipart/form-data">
-                            <div class="modal-body">
-                                <input type="hidden" id="commodity_id" name="commodity_id" value={{ commodity.id }} />
-                                商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name" value={{ commodity.commodity_name }}><br>
-                                商品种类：<input type="text" id="new_commodity_type" name="new_commodity_type" value={{ commodity.commodity_type }}><br>
-                                价格：<input type="number" id="new_commodity_price" name="new_commodity_price" value={{ commodity.price }}><br>
-                                介绍：<textarea id="new_commodity_introduction" name="new_commodity_introduction" >{{ commodity.commodity_introduction }}</textarea><br>
-                                上传你的实拍图
-                                <br>
-                                <input type="file" id="photo1" name="photo1">
-                                <input type="file" id="photo1" name="photo2">
-                                <input type="file" id="photo1" name="photo3">
-                                <input type="file" id="photo1" name="photo4">
-                                <input type="file" id="photo1" name="photo5">
-            
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                                <button type="submit" class="btn btn-primary">上架</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
+                {% set delete_id = 'delete_btn_' + commodity.id|string %}
+                <button type="button" id={{ delete_id }} class="btn btn-primary" onclick="detele_commodity(this.id)">
+                    删除商品
+                </button>
             </div>
-            {% set delete_id = 'delete_btn_' + commodity.id|string %}
-            <button type="button" id={{ delete_id }} class="btn btn-primary" onclick="detele_commodity(this.id)">
-                删除商品
-            </button>
+
+            
         </li>
         {% endfor %}
     </ul>
@@ -123,6 +131,8 @@
         </ul>
     </nav>
 </body>
+{% endblock %}
+{% block script_at_end %}
 <script>
     var current = parseInt($("#current").val())
     var from = parseInt($("#from").val())
@@ -188,3 +198,5 @@
             + "&commodity_name=" + $("#commodity_name").val();
     }
 </script>
+
+{% endblock %}
