@@ -15,8 +15,8 @@ class UserUpdatePermission(Permission):
 
 class UserDeletionPermission(Permission):
     def __init__(self,user_id):
-        super().__init__(RoleNeed("admin"))
-        self.excludes=set([UserNeed(user_id)])  #用户不能删除用户自身
+        super().__init__(RoleNeed("admin"))     #只有管理员可以删除用户
+        self.excludes=set([UserNeed(user_id)])  #即使是管理员也不能删除自身
 
 
 

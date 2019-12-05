@@ -2,6 +2,9 @@ from functools import wraps
 from flask import request,current_app
 from flask_login import current_user,login_required
 from flask_principal import Permission,RoleNeed
+import hmac
+from hashlib import sha512
+
 
 def admin_login_required(func):
     @wraps(func)
@@ -40,3 +43,30 @@ def drop_value_from_request(default=None):
             return func(self)
         return decorated_view
     return formatter
+
+def make_secure_token(*args, **options):
+    '''
+    This will create a secure token that you can use as an authentication
+    token for your users. It uses heavy-duty HMAC encryption to prevent people
+    from guessing the information. (To make it even more effective, if you
+    will never need to regenerate the token, you can  pass some random data
+    as one of the arguments.)
+
+    :param \*args: The data to include in the token.
+    :type args: args
+    :param \*\*options: To manually specify a secret key, pass ``key=THE_KEY``.
+        Otherwise, the ``current_app`` secret key will be used.
+    :type \*\*options: kwargs
+    '''
+    key = options.get('key').encode("utf8")
+
+    l = [s if isinstance(s, bytes) else s.encode('utf-8') for s in args]
+
+    payload = b'\0'.join(l)
+
+    token_value = hmac.new(key, payload, sha512).hexdigest()
+
+    if hasattr(token_value, 'decode'):  # pragma: no cover
+        token_value = token_value.decode('utf-8')  # ensure bytes
+
+    return token_value
