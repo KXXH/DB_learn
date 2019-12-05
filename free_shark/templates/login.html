@@ -1,10 +1,26 @@
-<head>
-    {{ bootstrap.load_css() }}
-</head>
 
-<body>
-    {% from 'bootstrap/form.html' import render_form,render_form_row %}
+{% extends "layout.html" %}
 
-    {{ render_form(form,horizontal_columns=('sm',1,3),form_type="horizontal",role="form",action='/auth/login?next=/commodity/index') }}
-    {{ bootstrap.load_js() }}
-</body>
+{% block style %}
+
+<style>
+    .container{
+        height: 100%;
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+    <script src="Common/js/jquery.backstretch.min.js"></script>
+    <script>
+        $.backstretch("Common/img/login_background.jpeg");
+    </script>
+    <div class="row justify-content-center align-items-center" style="height: 100%;">
+        <div class="col-md-4 card p-4">
+            <h1 class="mt-2">欢迎登录</h1>
+            {% from 'bootstrap/form.html' import render_form,render_form_row %}
+            {{ render_form(form,role="form",button_map={"submit":"block btn-primary"}) }}
+        </div>
+    </div>
+{% endblock %}

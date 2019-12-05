@@ -6,7 +6,7 @@ import re
 from free_shark.db import get_db,close_db,db_required,abort,get_db_with_dict_cursor
 from free_shark.exceptions.db_exception import DB_Exception
 from free_shark.exceptions.user_model_exception import UserModelException,UserEmailInvalid,UsernameDuplicate
-
+from free_shark.utils import make_secure_token
 from free_shark.db import get_db,close_db,db_required,abort
 
 class User(UserMixin):
@@ -22,6 +22,7 @@ class User(UserMixin):
         self._type=kwargs.get('type',1)
         self._status=kwargs.get('status',1)
         self._create_time=kwargs.get('create_time',None)
+        self._token=kwargs.get('token',None)
         self._activite_flag=False
     
     def is_authenticated(self):
@@ -29,6 +30,33 @@ class User(UserMixin):
 
     def get_id(self):
         return str(self._id)
+
+    def get_auth_token(self):
+        if self._token is None:
+            db=get_db()
+            cursor=db.cursor()
+            sql="""
+            SELECT token FROM token WHERE user_id=%s 
+            """
+            try:
+                cursor.execute(sql,self.id)
+                result=cursor.fetchone()
+            except:
+                db.rollback()
+                abort(500)
+            if result is None:
+                self._token=make_secure_token(str(self._id),self._password,self._salt,key=current_app.config['SECRET_KEY'])
+                sql="""
+                INSERT INTO token (user_id,token) VALUES(%s,%s)
+                """
+                try:
+                    cursor.execute(sql,(self.id,self._token))
+                except:
+                    db.rollback()
+                    abort(500)
+            else:
+                self._token=result[0]
+        return self._token
 
     def user_id_not_none(func):
         def wrapper(self,*args,**kwargs):
@@ -230,15 +258,17 @@ class User(UserMixin):
 
     @staticmethod
     def create_user_from_rows(row):
-        user=User(id=row[0],username=row[1],password=row[2],salt=row[3],email=row[4],activation=row[5],type=row[6],status=row[7],create_time=row[8])
+        user=User(id=row[0],username=row[1],password=row[2],salt=row[3],email=row[4],activation=row[5],type=row[6],status=row[7],create_time=row[8],token=row[9])
+        print("row= ",row)
         return user
 
     @staticmethod
     def get_user_by_id(id):
         db=get_db()
         cursor=db.cursor()
-        cursor.execute('SELECT * FROM user WHERE id=%s',str(id))
+        cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.id=%s',str(id))
         result = cursor.fetchone()  #由于id的唯一性，至多只有一个结果
+        print("result=",result)
         if result is None:
             return None
         user=User.create_user_from_rows(result)
@@ -278,7 +308,7 @@ class User(UserMixin):
     def get_user_by_username(username):
         db=get_db()
         cursor=db.cursor()
-        cursor.execute('SELECT * FROM user WHERE username=%s',str(username))
+        cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.username=%s',str(username))
         result = cursor.fetchone()  #由于username的唯一性，至多只有一个结果
         if result is None:
             return None
@@ -311,6 +341,8 @@ class User(UserMixin):
         cursor=db.cursor()
         try:
             cursor.execute("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,CURRENT_TIME())",(user.username,user._password,user.salt,user.email,user.activation,user.type,user.status))
+            print(cursor.mogrify("INSERT INTO user (username,password,salt,email,activation,type,status,create_time) VALUES (%s,%s,%s,%s,%s,%s,%s,CURRENT_TIME())",(user.username,user._password,user.salt,user.email,user.activation,user.type,user.status)))
+            
             db.commit()
             return User.get_user_by_username(user.username)
         except:
@@ -318,7 +350,19 @@ class User(UserMixin):
             abort(500)
         
     
-
-
+    @staticmethod
+    def get_user_by_token(token):
+        db=get_db_with_dict_cursor()
+        cursor=db.cursor()
+        sql="""
+        SELECT user.*,token.token FROM user JOIN token ON token.user_id=user.id WHERE token.token=%s
+        """
+        cursor.execute(sql,token)
+        result=cursor.fetchone()
+        if result is None:
+            return None
+        user=User(**result)
+        return user
+        
 
 

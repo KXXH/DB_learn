@@ -15,11 +15,16 @@ class TestUser:
 
     def test_add_user1(self,app):
         with app.app_context():
-            user=User.create_user(username='zjm',password='kxxh',salt='kxxh',email='test@test',activation='act',type=1,status=1)
+            user=User.create_user(username='zjm',password='kxxh',salt='kxxh',email='test@test',activation='act',type=2,status=2)
             assert user is not None
             user=User.get_user_by_username('zjm')
             assert user is not None
             assert user.salt=="kxxh"
+
+    def test_get_user_by_username(self,app):
+        with app.app_context():
+            user=User.get_user_by_username("test1")
+            assert user is not None
 
     def test_select2(self,app):
         with app.app_context():
@@ -115,3 +120,8 @@ class TestUser:
             users,count=User.search_user(username="%test%")
             assert len(users)==count
             assert users[0].username=="test1" and users[1].username=="test2"
+
+    def test_user_token_generate(self,app):
+        with app.app_context():
+            user=User.get_user_by_id(1)
+            assert user.get_auth_token() is not None
