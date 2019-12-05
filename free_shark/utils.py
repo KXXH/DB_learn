@@ -21,9 +21,6 @@ class Arg_Default_Val(fields.Raw):
         self.default_class=default_class
     
     def __call__(self,value):
-        print("__call__")
-        print(self.default_val)
-        print(value)
         if value is None:
             return self.default_class(self.default_val)
         else:

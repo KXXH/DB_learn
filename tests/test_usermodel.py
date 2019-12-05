@@ -3,18 +3,12 @@ import os
 sys.path.append(os.path.abspath('.'))
 import pytest
 from free_shark.models.user import User
+from tests import app
 import free_shark
 from flask import Flask
 from free_shark.exceptions.user_model_exception import UserEmailInvalid
 
-@pytest.fixture
-def app():
-    app = Flask(__name__)
-    app.config.from_pyfile('free_shark.cfg')
-    app.config.from_pyfile('db_config.cfg')
-    with app.app_context():
-        free_shark.db.init_db()
-    yield app
+
 
 
 class TestUser:
@@ -76,12 +70,9 @@ class TestUser:
     def test_modify_email_wrong_case(self,app):
         with app.app_context():
             user=User.get_user_by_id(1)
-            try:
+            with pytest.raises(UserEmailInvalid):
                 user.email='test_email' #此处应该抛出异常
-                assert 1==2 
-            except UserEmailInvalid as e:
-                assert e.wrong_email=='test_email'
-
+    
     def test_modify_type(self,app):
         with app.app_context():
             user=User.get_user_by_id(1)
@@ -115,12 +106,12 @@ class TestUser:
     
     def test_user_query1(self,app):
         with app.app_context():
-            users=User.search_user(username="test1")
-            assert len(users)>0
+            users,count=User.search_user(username="test1")
+            assert len(users)==count
             assert users[0].username=="test1"
 
     def test_user_query2(self,app):
         with app.app_context():
-            users=User.search_user(username="%test%")
-            assert len(users)>1
+            users,count=User.search_user(username="%test%")
+            assert len(users)==count
             assert users[0].username=="test1" and users[1].username=="test2"
