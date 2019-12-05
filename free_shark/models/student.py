@@ -2,7 +2,7 @@ from free_shark.db import get_db,abort
 import time
 
 
-class Student():
+class Student:
     def __init__(self,**kwargs):
         self._user_id=kwargs.get('user_id',None)
         self._school_number=kwargs.get('school_number',None)
