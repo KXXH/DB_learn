@@ -60,8 +60,9 @@ def solve_photo(file):
     else:
         return 2
 
-@login_required
+
 @bp.route('/upload',methods=['POST','GET'])
+@login_required
 def upload():
     if request.method == 'POST':
         c = Commodity()

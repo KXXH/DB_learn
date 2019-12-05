@@ -1,4 +1,5 @@
-from flask import (Blueprint,flash,g,render_template,request,session,redirect,url_for,render_template_string,current_app)
+from flask import (Blueprint, flash, g, render_template,
+                   request, session, redirect, url_for, render_template_string, current_app)
 from werkzeug.security import check_password_hash,generate_password_hash
 from free_shark.forms import login_form,student_form
 from free_shark.models import user
@@ -21,7 +22,13 @@ def login():
             login_user(c_user)  #需要加入next跳转
             identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(c_user.id))
-            return render_template_string("Hi {{ current_user.username }}!")   #需要修改模板
+            next = request.args.get('next')
+            print(next)
+            # next_is_valid should check if the user has valid
+            # permission to access the `next` url
+            
+            return redirect(next or url_for('index'))
+            #return render_template_string("Hi {{ current_user.username }}!")   #需要修改模板
         else:
             return "wrong password!"
     return render_template("login.html",form=form)

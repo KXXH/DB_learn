@@ -10,11 +10,10 @@
 
 {% if current_user.is_authenticated %}
     你好！{{ current_user.username }}
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCommodity">
+        上架商品
+    </button>
 {% endif %}
-
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCommodity">
-    上架商品
-</button>
 
 <!-- Modal -->
 <div class="modal fade" id="uploadCommodity" tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
