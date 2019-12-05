@@ -12,10 +12,6 @@
 {% endblock %}
 
 {% block content %}
-    <script src="Common/js/jquery.backstretch.min.js"></script>
-    <script>
-        $.backstretch("Common/img/login_background.jpeg");
-    </script>
     <div class="row justify-content-center align-items-center" style="height: 100%;">
         <div class="col-md-4 card p-4">
             <h1 class="mt-2">欢迎登录</h1>
@@ -23,4 +19,11 @@
             {{ render_form(form,role="form",button_map={"submit":"block btn-primary"}) }}
         </div>
     </div>
+{% endblock %}
+
+{% block script_at_end %}
+    <script src="/static/js/jquery.backstretch.min.js"></script>
+    <script>
+        $.backstretch("/static/image/login_background.jpeg");
+    </script>
 {% endblock %}
