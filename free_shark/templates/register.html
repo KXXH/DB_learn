@@ -1,115 +1,28 @@
-{% extends "layout.html" %}
+{% extends "edit_or_add_user_base.html" %}
 
-{% block content %}
-
-    <form class="mt-5" id="register_form" action="/api/user/add">
-        <h1>注册用户</h1>
-        <div class="form-group">
-                <label for="usernameInput">用户名</label>
-                <input class="form-control" name="username" id="usernameInput" aria-describedby="usernameHelp">
-                <small id="usernameHelp" class="form-text text-muted">请输入用户名，推荐使用真实姓名</small>
-                <div class="invalid-feedback" id="username_feedback">
-                </div>
-        </div>
-        <div class="form-group">
-                <label for="emailInput">校园邮箱</label>
-                <input type="email" class="form-control" name="email" id="emailInput" aria-describedby="emailHelp">
-                <small id="emailHelp" class="form-text text-muted">请输入校园邮箱，稍后我们会向你验证邮箱的正确性</small>
-                <div class="invalid-feedback" id="email_feedback">
-                </div>
-        </div>
-        <div class="form-group">
-            <label for="passwordInput">密码</label>
-            <input type="password" class="form-control" id="passwordInput" name="password" oninput="checkPasswordDebounce()">
-        </div>
-        <div class="form-group">
-            <label for="passwordInputConfirm">确认密码</label>
-            <input type="password" class="form-control" id="passwordInputConfirm"  name="password_confirm" oninput="checkPasswordDebounce()">
-        </div>
-        <button class="btn btn-primary" onclick="" type="submit">确认</button>
-    </form>
-    
-
+{% block form_title %}
+注册用户
 {% endblock %}
 
-{% block script_at_end %}
-    <script>
-        var usernameField=InputField("#usernameInput",checkUsername);
-        var emailField=InputField("#emailInput",checkEmail);
-        var passwordField=InputField("#passwordInput");
-        var passwordConfirmField=InputField("#passwordInputConfirm");
-        function sendRegister(){
-            console.log($("#register_form").serializeArray());
+{% set submit_url="/api/user/add" %}
+{% set usernameInputEnable=True %}
+{% set passwordInputEnable=True %}
+{% set emailInputEnable=True %}
+
+{% block submit_function %}
+$("#register_form").on('submit',function(e){
+    e.preventDefault();
+    if(usernameField.isValid()&&passwordField.isValid()&&emailField.isValid()&&passwordConfirmField.isValid()){
+        var postData={
+            username:usernameField.val(),
+            password:passwordField.val(),
+            email:emailField.val()
         }
-        function checkUsername(){
-            var username=this.val();
-            var url='/api/user/check_username';
-            var postData={
-                username:username,
-            };
-            $.post(url,postData,(ans) => {
-                if(ans.status!=200){
-                    this.setError(ans.message);
-                }else{
-                    this.setPass();
-                }
-            });
-        }
-        function checkEmail(){
-            var reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-            var email=this.val();
-            if(!reg.test(email)){
-                this.setError("邮箱格式不正确!");
-                return;
-            }
-            var url="/api/user/check_email";
-            var postData={
-                email:email
-            };
-            $.post(url,postData,(ans)=>{
-                if(ans['status']!=200){
-                    this.setError(ans.message);
-                }else{
-                    this.setPass();
-                }
-            });
-        }
-        function checkPassword(){
-            var password=passwordField.val();
-            var password_confirm=passwordConfirmField.val();
-            if(!password.length){
-                passwordField.setError("请填写密码!");
-                passwordConfirmField.setError();
-            }
-            else if(!password_confirm.length && password.length){
-                passwordField.clear();
-                passwordConfirmField.clear();
-            }
-            else if(password!=password_confirm){
-                passwordConfirmField.setError("确认密码和密码不一致!");
-                passwordField.setError();
-            }
-            else{
-                passwordConfirmField.setPass();
-                passwordField.setPass();
-            }
-        }
-        checkUsernameDebounce=_.debounce(checkUsername,200);
-        checkEmailDebounce=_.debounce(checkEmail,200);
-        checkPasswordDebounce=_.debounce(checkPassword,1000);
-        $("#register_form").on('submit',function(e){
-            e.preventDefault();
-            if(usernameField.isValid()&&passwordField.isValid()&&emailField.isValid()&&passwordConfirmField.isValid()){
-                var postData={
-                    username:usernameField.val(),
-                    password:passwordField.val(),
-                    email:emailField.val()
-                }
-                var url="/api/user/add";
-                $.post(url,postData,function(data){
-                    alert(data);
-                })
-            }
+        var url='{{ submit_url }}';
+        $.post(url,postData,function(data){
+            alert("注册成功!现在请去登录");
+            window.location.href="/auth/login"
         })
-    </script>
+    }
+})
 {% endblock %}

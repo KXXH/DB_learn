@@ -53,10 +53,12 @@
             email:user_email
         }
         $.post(url,postData,function(data){
+            console.log("success,",data);
             if(data.status==200){
                 $("#modal").modal('show');
             }
-        }).error(function(data){
+        }).fail(function(data){
+            console.log("error",data);
             alert("请求频率过高，请稍后再试!");
         })
     }
