@@ -21,6 +21,18 @@ import sys
 path = os.path.split(os.path.abspath(__file__))[0]
 UPLOAD_FOLDER = path + "\\static\\image"
 
+global_var = [0]
+
+
+def set_var(var):  # 设置全局变量
+    global_var[0] = var
+    return ""
+
+
+def get_var():  # 获取全局变量
+    return global_var[0]
+
+
 def create_app(test_config=None):
     app=Flask(__name__)
     try:
@@ -51,6 +63,9 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(resources.bp)
     app.register_blueprint(comController.bp)
+
+    app.add_template_global(set_var, 'set_var')
+    app.add_template_global(get_var, 'get_var')
    
     principals = Principal(app)
     principals.init_app(app)
