@@ -24,7 +24,7 @@ class TestStudent:
             stu=Student.get_student_id(251)
             assert stu is None
 
-    @pytest.mark.parametrize('value',['PDDDD','五五开'])
+    @pytest.mark.parametrize('value',['胡书杰','王超'])
     def test_select2_real_name(self,app,value):
         with app.app_context():
             stu=Student.get_student_real_name(value)
@@ -54,16 +54,7 @@ class TestStudent:
             stu=Student.get_student_id(1)
             stu.update_banji=6
             stu=Student.get_student_id(1)
-            assert stu.update_banji==6
-
-    def test_modify_banji2(self,app):
-        with app.app_context():
-            stu=Student.get_student_id(1)
-            try:
-                stu.update_banji='dfgf'#此处应该抛出异常
-                assert 1==2 
-            except:
-                assert stu.update_college=='AABB' 
+            assert stu.update_banji=='6'
 
     def test_modify_contact(self,app):
         with app.app_context():
