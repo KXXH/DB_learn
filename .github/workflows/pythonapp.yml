@@ -11,6 +11,7 @@ jobs:
           image: mysql:5.7
           env:
             MY_SQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE : free_shark
           ports:
             - 3306
     steps:
@@ -22,7 +23,6 @@ jobs:
     - name: Check mysql
       run: | 
         mysql -uroot -proot
-        create database free_shark
     
     - name: Install dependencies
       run: |
