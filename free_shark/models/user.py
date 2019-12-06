@@ -51,6 +51,7 @@ class User(UserMixin):
                 """
                 try:
                     cursor.execute(sql,(self.id,self._token))
+                    db.commit()
                 except:
                     db.rollback()
                     abort(500)

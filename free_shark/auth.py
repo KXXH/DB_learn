@@ -35,6 +35,23 @@ def login():
 def register():
     return render_template("register.html")
 
+@bp.route("/send_activation")
+def send_activation():
+    return render_template("send_activation_email.html")
+
+@bp.route("/activation/<token>")
+def activation(token):
+    c_user=user.User.get_user_by_token(token)
+    if c_user is None or c_user.status:
+        return redirect(url_for("auth.login"))
+    else:
+        login_user(c_user)  #需要加入next跳转
+        c_user.status=1
+        identity_changed.send(current_app._get_current_object(),
+                                identity=Identity(c_user.id))
+    return render_template("activation_success.html")
+
+
 @bp.route('/test',methods=("GET","POST"))
 def test():
     form=student_form.StudentForm()
