@@ -22,7 +22,7 @@ jobs:
         python-version: 3.7
     - name: Check mysql
       run: | 
-        mysql -uroot -proot -d free_shark
+        mysql -uroot -proot -D free_shark
     
     - name: Install dependencies
       run: |
