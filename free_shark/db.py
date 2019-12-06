@@ -61,7 +61,7 @@ def init_db():
             cursor=db.cursor()
             sql=f.read().decode('utf8')
             cursor.execute(sql)
-            
+    db.commit()
     db.close()
 
 def db_required(func):
