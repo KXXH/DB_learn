@@ -6,36 +6,23 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    services:
+        mysql:
+          image: mysql:5.7
+          env:
+            MY_SQL_ROOT_PASSWORD: root
+          ports:
+            - 3306
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Setup MySQL
-      uses: samin/mysql-action@v1.3
-      with:
-        # The port of host
-        host port: 13306 # optional, default is 3306
-        # The port of container
-        container port: 13306 # optional, default is 3306
-        # --character-set-server - The character set of MySQL server
-        character set server: utf8 # optional, default is utf8mb4
-        # --collation-server - The character collation of MySQL server
-        collation server: utf8 # optional, default is utf8mb4_general_ci
-        # Version of MySQL to use
-        mysql version: 5.7 # optional, default is latest
-        # MYSQL_ROOT_PASSWORD - root superuser password
-        mysql root password: root # optional, default is 
-        # MYSQL_DATABASE - name for the default database that is created
-        mysql database: free_shark # optional, default is 
-        # MYSQL_USER - create the specified user with superuser power for created database
-        mysql user: root # optional, default is 
-        # MYSQL_PASSWORD - specified superuser password which user is power for created database
-        mysql password: root # optional, default is 
     - name: Check mysql
-      run: mysql -uroot -proot
+      run: | 
+        mysql -uroot -proot
+        create database free_shark
     
     - name: Install dependencies
       run: |
@@ -50,11 +37,12 @@ jobs:
         DB_HOST: localhost
         DB_USER: root
         DB_PASSWORD: root
-        DB_PORT: 13306
+        DB_PORT: 3306
         DB_CHARSET: utf8
         DATABASE: free_shark
         FLASK_APP: free_shark
         FLASK_ENV: development
+      
     - name: Test with pytest
       run: |
         pip install pytest
