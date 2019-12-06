@@ -20,7 +20,7 @@ class User(UserMixin):
         self._email=kwargs.get('email',None)
         self._activation=kwargs.get('activation','act')
         self._type=kwargs.get('type',1)
-        self._status=kwargs.get('status',1)
+        self._status=kwargs.get('status',0)
         self._create_time=kwargs.get('create_time',None)
         self._token=kwargs.get('token',None)
         self._activite_flag=False
@@ -160,10 +160,10 @@ class User(UserMixin):
     @email.setter
     def email(self,new_val):
         # 如果新值等于原始值则跳过修改
+        from free_shark.utils import is_email
         if self._email==new_val:
             return
-        pattern=r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"   #邮箱仅允许字母数字下划线和横杠
-        if not re.match(pattern,new_val):
+        if not is_email(new_val):
             raise UserEmailInvalid(new_val)
         self._email=new_val
         db=get_db()

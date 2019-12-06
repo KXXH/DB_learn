@@ -4,7 +4,9 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager,current_user
 from flask_restful import Resource, Api
 from flask_wtf.csrf import CSRFProtect
-from flask_mail import Mail
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_principal import Principal, Permission, RoleNeed,identity_loaded,identity_changed,Identity,AnonymousIdentity,UserNeed
 from free_shark.models import user
 from free_shark import resources
@@ -62,9 +64,10 @@ def create_app(test_config=None):
     csrf=CSRFProtect(app)
     csrf.init_app(app)
 
-    mail = Mail()
+    
+    from free_shark.utils import api_limiter,mail
+    api_limiter.init_app(app)
     mail.init_app(app)
-
     
     @login_manager.user_loader
     def load_user(userid):
