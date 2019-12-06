@@ -46,7 +46,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest tests/test_userAPI.py
+        pytest --cov=./freeshark
       env:
         DB_HOST: localhost
         DB_USER: root
