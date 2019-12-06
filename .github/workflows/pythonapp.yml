@@ -47,3 +47,12 @@ jobs:
       run: |
         pip install pytest
         pytest
+      env:
+        DB_HOST: localhost
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_PORT: 3306
+        DB_CHARSET: utf8
+        DATABASE: free_shark
+        FLASK_APP: free_shark
+        FLASK_ENV: development
