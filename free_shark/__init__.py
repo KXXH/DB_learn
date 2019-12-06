@@ -4,6 +4,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager,current_user
 from flask_restful import Resource, Api
 from flask_wtf.csrf import CSRFProtect
+from flask_mail import Mail
 from flask_principal import Principal, Permission, RoleNeed,identity_loaded,identity_changed,Identity,AnonymousIdentity,UserNeed
 from free_shark.models import user
 from free_shark import resources
@@ -23,6 +24,7 @@ def create_app(test_config=None):
     try:
         app.config.from_pyfile('free_shark.cfg')
         app.config.from_pyfile('db_config.cfg')
+        app.config.from_pyfile('mail_config.cfg')
     except:
         pass
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -60,6 +62,10 @@ def create_app(test_config=None):
     csrf=CSRFProtect(app)
     csrf.init_app(app)
 
+    mail = Mail()
+    mail.init_app(app)
+
+    
     @login_manager.user_loader
     def load_user(userid):
         try:
