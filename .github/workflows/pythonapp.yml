@@ -13,15 +13,45 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
+    - name: Setup MySQL
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        # The port of host
+        host port: 3306 # optional, default is 3306
+        # The port of container
+        container port: 3306 # optional, default is 3306
+        # --character-set-server - The character set of MySQL server
+        character set server: utf8 # optional, default is utf8mb4
+        # --collation-server - The character collation of MySQL server
+        collation server: utf8 # optional, default is utf8mb4_general_ci
+        # Version of MySQL to use
+        mysql version: 5.7 # optional, default is latest
+        # MYSQL_ROOT_PASSWORD - root superuser password
+        mysql root password: root # optional, default is 
+        # MYSQL_DATABASE - name for the default database that is created
+        mysql database: free_shark # optional, default is 
+        # MYSQL_USER - create the specified user with superuser power for created database
+        mysql user: root # optional, default is 
+        # MYSQL_PASSWORD - specified superuser password which user is power for created database
+        mysql password: root # optional, default is 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Lint with flake8
+    - name: config envvar
       run: |
         export FLASK_APP=free_shark
         export FLASK_ENV=development 
-        flask run
+        flask init-db
+      env:
+        DB_HOST: 127.0.0.1
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_PORT: 3306
+        DB_CHARSET: utf8
+        DATABASE: free_shark
+        FLASK_APP: free_shark
+        FLASK_ENV: development
     - name: Test with pytest
       run: |
         pip install pytest
