@@ -1,4 +1,4 @@
-from flask import abort,current_app
+from flask import abort,current_app,url_for,render_template_string
 from flask_mail import Message
 from flask_login import current_user
 from flask_restful import Resource,reqparse,fields,marshal_with
@@ -60,9 +60,21 @@ class SendActivationEmail(Resource):
     @marshal_with(Base_Response_Fields().resource_fields)
     @api_limiter.limit("5 per miniute")
     @send_activation_email_permission.require()
-    def get(self):
+    def post(self):
         d=self.parser.parse_args()
         token=current_user.get_auth_token()
-        msg=Message(token,sender=current_app.config['MAIL_USERNAME'],recipients=["283028294@qq.com"])
-        mail.send(msg)
-        return Base_Response_Fields("test")
+        url="http://localhost:5000"+url_for("auth.activation",token=token)
+        msg=Message(
+            token,
+            recipients=["283028294@qq.com"],
+            )
+        msg.subject="激活确认邮件"
+        msg.html=render_template_string("<a href='{{url}}'>点此激活</a>",url=url)
+        try:
+            mail.send(msg)
+            return Base_Response_Fields("success")
+        except:
+            return Base_Response_Fields("fail",500)
+
+    def get(self):
+        return self.post()
