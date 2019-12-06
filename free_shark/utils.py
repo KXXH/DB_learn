@@ -88,7 +88,7 @@ def load_config_from_envvar():
     
     db_port=os.environ.get("DB_PORT")
     if db_port:
-        d['DB_PORT']=db_port
+        d['DB_PORT']=int(db_port)
     
     db_charset=os.environ.get("DB_CHARSET")
     if db_charset:
