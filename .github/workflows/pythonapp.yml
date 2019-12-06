@@ -14,7 +14,7 @@ jobs:
       with:
         python-version: 3.7
     - name: Setup MySQL
-      uses: mirromutth/mysql-action@v1.1
+      uses: mirromutth/mysql-action@v1.3
       with:
         # The port of host
         host port: 13306 # optional, default is 3306
