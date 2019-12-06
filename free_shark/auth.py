@@ -9,10 +9,6 @@ from flask_login import login_user,login_required,logout_user,current_user
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')
 
-@bp.route('/register',methods=("GET","POST"))
-def register():
-    return "register"
-
 @bp.route('/login',methods=("GET","POST"))
 def login():
     form=login_form.LoginForm()
@@ -27,13 +23,17 @@ def login():
             # next_is_valid should check if the user has valid
             # permission to access the `next` url
             flash("Hi %s!" % c_user.username,"success")
-            return redirect(next or url_for('index'))
+            return redirect(next or url_for('auth.login'))
             
             #return render_template_string("Hi {{ current_user.username }}!")   #需要修改模板
         else:
             flash("wrong password!","danger")
     return render_template("login.html",form=form)
 
+
+@bp.route("/register",methods=("GET",))
+def register():
+    return render_template("register.html")
 
 @bp.route('/test',methods=("GET","POST"))
 def test():

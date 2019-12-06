@@ -4,7 +4,7 @@ from flask_login import current_user,login_required
 from flask_principal import Permission,RoleNeed
 import hmac
 from hashlib import sha512
-
+import os
 
 def admin_login_required(func):
     @wraps(func)
@@ -70,3 +70,32 @@ def make_secure_token(*args, **options):
         token_value = token_value.decode('utf-8')  # ensure bytes
 
     return token_value
+
+def load_config_from_envvar():
+    d={}
+    db_host=os.environ.get("DB_HOST")
+
+    if db_host:
+        d['DB_HOST']=db_host
+    db_user=os.environ.get("DB_USER")
+
+    if db_user:
+        d['DB_USER']=db_user
+    
+    db_password=os.environ.get("DB_PASSWORD")
+    if db_password:
+        d['DB_PASSWORD']=db_password
+    
+    db_port=os.environ.get("DB_PORT")
+    if db_port:
+        d['DB_PORT']=db_port
+    
+    db_charset=os.environ.get("DB_CHARSET")
+    if db_charset:
+        d['DB_CHARSET']=db_charset
+    
+    database=os.environ.get("DATABASE")
+    if database:
+        d['DATABASE']=database
+    
+    return d
