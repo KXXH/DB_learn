@@ -1,11 +1,13 @@
 from flask import (Blueprint, flash, g, render_template,
                    request, session, redirect, url_for, render_template_string, current_app)
 from werkzeug.security import check_password_hash,generate_password_hash
+from werkzeug.exceptions import Forbidden
 from free_shark.forms import login_form,student_form
 from free_shark.models import user
 from free_shark.models import student
 from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity,AnonymousIdentity
 from flask_login import login_user,login_required,logout_user,current_user
+from free_shark.resources.user_resource.user_register_resource import SendActivationEmailPermission
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')
 
@@ -14,8 +16,12 @@ def login():
     form=login_form.LoginForm()
     if form.validate_on_submit():
         c_user=user.User.attempt_login(form.data['username'],form.data['password'])   #需要按需加载用户信息
+        
         if c_user.is_authenticated():
+            #logout()
             login_user(c_user,remember=form.data['remember'])  #需要加入next跳转
+            if not c_user.status:
+                flash("你还没有激活账户,请快去<a href='/auth/send_activation'>激活</a>!","warning")
             identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(c_user.id))
             next = request.args.get('next')
@@ -30,14 +36,40 @@ def login():
             flash("wrong password!","danger")
     return render_template("login.html",form=form)
 
+@bp.route("/editUser")
+def editUser():
+    targets=request.args.get("target")
+    usernameInputEnable=True
+    passwordInputEnable=True
+    emailInputEnable=True
+    if targets is not None:
+        targets=targets.split(",")
+        if "username" not in targets:
+            usernameInputEnable=False
+        if "password" not in targets:
+            passwordInputEnable=False
+        if "email" not in targets:
+            emailInputEnable=False
+    print(usernameInputEnable,passwordInputEnable,emailInputEnable)
+    return render_template("edit_userinfo.html",
+        usernameInputEnable=usernameInputEnable,
+        passwordInputEnable=passwordInputEnable,
+        emailInputEnable=emailInputEnable
+        )
 
 @bp.route("/register",methods=("GET",))
 def register():
     return render_template("register.html")
 
+send_email_permission=SendActivationEmailPermission()
+
+
 @bp.route("/send_activation")
+@send_email_permission.require(403)
 def send_activation():
     return render_template("send_activation_email.html")
+
+
 
 @bp.route("/activation/<token>")
 def activation(token):

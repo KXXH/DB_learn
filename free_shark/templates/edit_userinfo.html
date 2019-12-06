@@ -1,0 +1,11 @@
+{% extends "edit_or_add_user_base.html" %}
+{% set target=request.args.get("target") %}
+
+{% block form_title %}
+{{usernameInputEnable}}
+{% endblock %}
+
+
+
+{% set submit_url="/api/user/update" %}
+
