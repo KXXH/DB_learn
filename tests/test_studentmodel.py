@@ -6,15 +6,8 @@ from free_shark.models.student import Student
 import free_shark
 from flask import Flask
 from free_shark.exceptions.user_model_exception import UserEmailInvalid
+from tests import app
 
-@pytest.fixture
-def app():
-    app = Flask(__name__)
-    app.config.from_pyfile('free_shark.cfg')
-    app.config.from_pyfile('db_config.cfg')
-    with app.app_context():
-        free_shark.db.init_db()
-    yield app
 
 
 class TestStudent:
