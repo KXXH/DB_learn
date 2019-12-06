@@ -22,7 +22,7 @@ jobs:
         python-version: 3.7
     - name: Check mysql
       run: | 
-        mysql -uroot -proot -D free_shark
+        mysql -uroot -proot --init-command="CREATE DATABASE free_shark IF NOT EXISTS"
     
     - name: Install dependencies
       run: |
