@@ -99,3 +99,22 @@ def load_config_from_envvar():
         d['DATABASE']=database
     
     return d
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+api_limiter=Limiter(key_func=get_remote_address,default_limits=["5 per minute",])
+
+from flask_mail import Mail
+mail = Mail()
+
+import re
+def is_email(email):
+    pattern=r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"   #邮箱仅允许字母数字下划线和横杠
+    return re.match(pattern,email)
+
+def check_email(email):
+    if is_email(email):
+        return email
+    else:
+        raise ValueError("%s is not a email!" % email)
