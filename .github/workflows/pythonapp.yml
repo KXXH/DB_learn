@@ -17,7 +17,7 @@ jobs:
       uses: mirromutth/mysql-action@v1.1
       with:
         # The port of host
-        host port: 3306 # optional, default is 3306
+        host port: 13306 # optional, default is 3306
         # The port of container
         container port: 13306 # optional, default is 3306
         # --character-set-server - The character set of MySQL server
@@ -47,7 +47,7 @@ jobs:
         DB_HOST: 127.0.0.1
         DB_USER: root
         DB_PASSWORD: root
-        DB_PORT: 3306
+        DB_PORT: 13306
         DB_CHARSET: utf8
         DATABASE: free_shark
         FLASK_APP: free_shark
