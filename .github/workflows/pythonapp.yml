@@ -19,7 +19,7 @@ jobs:
         # The port of host
         host port: 3306 # optional, default is 3306
         # The port of container
-        container port: 3306 # optional, default is 3306
+        container port: 13306 # optional, default is 3306
         # --character-set-server - The character set of MySQL server
         character set server: utf8 # optional, default is utf8mb4
         # --collation-server - The character collation of MySQL server
