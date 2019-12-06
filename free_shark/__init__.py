@@ -10,7 +10,7 @@ from free_shark import resources
 from free_shark import auth,db
 from flask_sqlalchemy import SQLAlchemy
 from free_shark import comController
-from free_shark.utils import admin_login_required
+from free_shark.utils import admin_login_required,load_config_from_envvar
 from free_shark.models.commodity import Commodity
 from free_shark.entity.Page import Page
 import sys
@@ -31,6 +31,8 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_mapping(test_config)
 
+    d=load_config_from_envvar()
+    app.config.from_mapping(d)
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)

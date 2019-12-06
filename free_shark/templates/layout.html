@@ -3,7 +3,7 @@
     {% block style %}{% endblock %}
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand" href="#">闲鲨</a>
         <div class="navbar-nav mr-auto">
             {% from 'bootstrap/nav.html' import render_nav_item %}
@@ -13,16 +13,23 @@
         </div> 
     </nav>
 
-    <div class="container">
+    <div class="container pt-5">
         {%block messages %}
             {% with messages = get_flashed_messages(with_categories=true) %}
+                
                 {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{category}} " role="alert">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
+                    <div class="container fixed-top pt-5" style="height: auto;">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{category}} " role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
+                
             {% endwith %}
         {% endblock %}
         {%block content %}{% endblock %}
