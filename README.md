@@ -1,4 +1,7 @@
 # DB_learn
+
+![](<https://github.com/KXXH/DB_learn/workflows/test/badge.svg>)
+
  a simple work for db_design
 
 ## 环境配置方法
