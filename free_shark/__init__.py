@@ -20,8 +20,11 @@ UPLOAD_FOLDER = path + "\\static\\image"
 
 def create_app(test_config=None):
     app=Flask(__name__)
-    app.config.from_pyfile('free_shark.cfg')
-    app.config.from_pyfile('db_config.cfg')
+    try:
+        app.config.from_pyfile('free_shark.cfg')
+        app.config.from_pyfile('db_config.cfg')
+    except:
+        pass
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['WTF_CSRF_ENABLED'] = False
     if test_config is None:
