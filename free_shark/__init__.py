@@ -17,6 +17,7 @@ from free_shark.utils import admin_login_required,load_config_from_envvar
 from free_shark.models.commodity import Commodity
 from free_shark.entity.Page import Page
 from free_shark.error_handlers import frobidden_handler
+from free_shark import admin
 
 import sys
 
@@ -53,7 +54,8 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(resources.bp)
     app.register_blueprint(comController.bp)
-   
+    app.register_blueprint(admin.bp)
+
     app.register_error_handler(403,frobidden_handler)
 
     principals = Principal(app)

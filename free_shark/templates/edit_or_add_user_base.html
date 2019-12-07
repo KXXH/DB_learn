@@ -11,6 +11,7 @@
                 {% if not usernameInputEnable %}
                 disabled
                 {% endif %}
+                value="{{ show_username }}"
                 >
                 <small id="usernameHelp" class="form-text text-muted">请输入用户名，推荐使用真实姓名</small>
         </div>
@@ -20,6 +21,7 @@
                 {% if not emailInputEnable %}
                 disabled
                 {% endif %}
+                value={{ show_email }}
                 >
                 <small id="emailHelp" class="form-text text-muted">请输入校园邮箱，稍后我们会向你验证邮箱的正确性</small>
         </div>
@@ -39,20 +41,34 @@
             {% endif %}
             >
         </div>
-        <button class="btn btn-primary" onclick="" type="submit">确认</button>
+        <button class="btn btn-primary" onclick="" type="submit" id="submit_btn">确认</button>
     </form>
     
 
 {% endblock %}
 
-{% set submit_url="/api/user/add" %}
 
 {% block script_at_end %}
+{% block update_functions %}
+<script>
+    function before_update(){
+        $("#submit_btn").attr("disabled","true");
+        $("#submit_btn").text("验证中...")
+    }
+    function check_callback(){
+        console.log("执行了callback!");
+        if(usernameField.isValid()&&passwordField.isValid()&&emailField.isValid()&&passwordConfirmField.isValid()){
+            $("#submit_btn").removeAttr("disabled");
+            $("#submit_btn").text("确认");
+        }
+    }
+</script>
+{% endblock %}
     <script>
-        var usernameField=InputField("#usernameInput",checkUsername);
-        var emailField=InputField("#emailInput",checkEmail);
-        var passwordField=InputField("#passwordInput");
-        var passwordConfirmField=InputField("#passwordInputConfirm");
+        var usernameField=InputField("#usernameInput",checkUsername,before_update,check_callback);
+        var emailField=InputField("#emailInput",checkEmail,before_update,check_callback);
+        var passwordField=InputField("#passwordInput",undefined,before_update,check_callback);
+        var passwordConfirmField=InputField("#passwordInputConfirm",undefined,before_update,check_callback);
         function sendRegister(){
             console.log($("#register_form").serializeArray());
         }
@@ -68,7 +84,7 @@
                 }else{
                     this.setPass();
                 }
-            });
+            }).then(check_callback);
         }
         function checkEmail(){
             var reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
@@ -87,7 +103,7 @@
                 }else{
                     this.setPass();
                 }
-            });
+            }).then(check_callback);
         }
         function checkPassword(){
             var password=passwordField.val();
@@ -108,11 +124,12 @@
                 passwordConfirmField.setPass();
                 passwordField.setPass();
             }
+            check_callback();
         }
         checkUsernameDebounce=_.debounce(checkUsername,200);
         checkEmailDebounce=_.debounce(checkEmail,200);
         checkPasswordDebounce=_.debounce(checkPassword,1000);
-        {% block submit_function %}
-        {% endblock %}
     </script>
+    {% block submit_function %}
+    {% endblock %}
 {% endblock %}
