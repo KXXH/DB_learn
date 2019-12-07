@@ -104,6 +104,7 @@ class UserResourceUpdate(Resource):
         self.parser.add_argument("password",required=False)
         self.parser.add_argument("email",required=False)
     
+    @drop_value_from_request()
     @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         

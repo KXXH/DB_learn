@@ -281,7 +281,10 @@ class User(UserMixin):
     def search_user(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1,**kwargs):
         users=User.search_user_without_page(username,email,activation,type,status,create_time,**kwargs)
         return users[(page_num-1)*page_size:page_num*page_size],len(users)
-    
+
+    @staticmethod
+    def search(*args,**kwargs):
+        return User.search_user(*args,**kwargs)
 
     @staticmethod
     def search_user_without_page(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%"):

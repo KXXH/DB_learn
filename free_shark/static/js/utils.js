@@ -1,4 +1,4 @@
-function InputField(dom,checkFunc=undefined,invalid_class="is-invalid",invalid_feedback_class="invalid-feedback",valid_class="is-valid",valid_feedback_class="valid-feedback"){
+function InputField(dom,checkFunc=undefined,before_update=undefined,update_callback=undefined,invalid_class="is-invalid",invalid_feedback_class="invalid-feedback",valid_class="is-valid",valid_feedback_class="valid-feedback"){
     dom=$(dom);
     var invalid_feedback=dom.siblings().filter("."+invalid_feedback_class);
     if(!invalid_feedback.length){
@@ -14,6 +14,8 @@ function InputField(dom,checkFunc=undefined,invalid_class="is-invalid",invalid_f
     }
     d={
         dom:dom,
+        update_callback:update_callback,
+        before_update:before_update,
         invalid_feedback:invalid_feedback,
         valid_feedback:valid_feedback,
         valid_class:valid_class,
@@ -42,17 +44,27 @@ function InputField(dom,checkFunc=undefined,invalid_class="is-invalid",invalid_f
         isValid:function(){
             return dom.hasClass(valid_class);
         },
+        isNormal:function(){
+            return !this.isInvalid()&&!this.isValid();
+        },
+        isNonInvalid:function(){
+            return this.isNormal()||this.isValid();
+        },
         val:function(){
             return dom.val();
         },
-        checkFunc:checkFunc,
-        checkFuncDebounce:checkFunc?_.debounce(checkFunc,200):undefined,
+        checkFunc:checkFunc?_.debounce(checkFunc,200):undefined,
+        checkFuncDebounce:undefined,
     };
-    if(checkFunc){
-        d.checkFuncDebounce=d.checkFuncDebounce.bind(d);
-        dom.on("input",d.checkFuncDebounce);
+    d.checkFuncDebounce=function(){
+        if(this.before_update)
+            this.before_update();
+        if(this.checkFunc){
+            this.checkFunc.bind(this);
+            this.checkFunc();
+        }
     }
-    
-
+    d.checkFuncDebounce=d.checkFuncDebounce.bind(d);
+    dom.on("input",d.checkFuncDebounce);
     return d
 }

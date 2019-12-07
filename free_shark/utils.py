@@ -103,7 +103,7 @@ def load_config_from_envvar():
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-api_limiter=Limiter(key_func=get_remote_address,default_limits=["5 per minute",])
+api_limiter=Limiter(key_func=get_remote_address,default_limits=["2000 per minute",])
 
 from flask_mail import Mail
 mail = Mail()

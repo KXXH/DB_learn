@@ -35,6 +35,8 @@ class UsernameAvailable(Resource):
         user=User.get_user_by_username(d['username'])
         if user is None:
             return Base_Response_Fields("ok")
+        elif current_user.is_active and user.username==current_user.username:
+            return Base_Response_Fields("ok")        
         else:
             return Base_Response_Fields("该用户名已被注册!",USERNAME_DUPLICATE)
 
