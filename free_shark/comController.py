@@ -225,3 +225,20 @@ def delete():
             return make_json(200,'delete success')
         else:
             return make_json(500,'delete fail')
+
+
+@bp.route('/buy',methods = ['POST','GET'])
+@login_required
+def wanna_buy():
+    if request.method == 'POST':
+        # 判断卖家是否是自己
+        data = request.get_data()
+        data = str(data,'utf-8')
+        id = int(data.split('=')[-1])
+        commodity = Commodity.get_commodity_by_id(id)
+        student = Student.get_student_id(current_user.id)
+        if student._school_number == commodity.owner_student_id:
+            return make_json(500,'这是您自己的商品')
+        else:
+            # 首先要把商品的状态改为1
+            return make_json(200,'success')
