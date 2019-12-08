@@ -3,6 +3,7 @@
     {% block style %}{% endblock %}
     
 </head>
+
 <body class="bg-light" style="padding-top: 4.5rem;">
     {% block nav_bar %}
     <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
@@ -23,6 +24,9 @@
 
     <main class="container" role="main">
         {%block messages %}
+        <div class="alert alert-danger shadow" role="alert" id="network_problem" style="display: none;">
+           警告: 连接出现问题
+        </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 
                 {% if messages %}
@@ -42,7 +46,11 @@
                 
             {% endwith %}
         {% endblock %}
+        
         {%block content %}{% endblock %}
+
+        {% block footer%}
+        {% endblock %}
     </main>
     {{ bootstrap.load_js() }}
     <script src="/static/js/lodash.min.js"></script>
@@ -58,6 +66,18 @@
                 }
             }
         });
+
+        function heartbeat(){
+            var url="/api/heartbeat";
+            $.post(url,function(d){
+                $("#network_problem").css("display","none");
+            }).fail(function(d){
+                console.log(d)
+                $("#network_problem").css("display","block");
+            });
+        }
+
+        setInterval(heartbeat,1000);
     </script>
     {% block script_at_end %}
     {% endblock %}
