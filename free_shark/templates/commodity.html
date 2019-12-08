@@ -10,58 +10,128 @@
 
     </div>
 
-    <div class="col-8">
-        <label>商品种类</label>
-        <input type="text" name="choose_commodity_type" id="commodity_type" {% if request.args.get('commodity_type') %}
-            value={{ request.args.get('commodity_type') }} {% endif %}>
-        <label>商品名称</label>
-        <input type="text" name="choose_commodity_name" id="commodity_name" {% if request.args.get('commodity_name') %}
-            value={{ request.args.get('commodity_name') }} {% endif %}>
-        <button onclick="search()">搜索</button>
-    
-        {% if current_user.is_authenticated %}
-        <button type="button" data-toggle="modal" data-target="#uploadCommodity">
-            上架商品
-        </button>
-    
-        <button onclick="myCommodity()">我的</button>
-        {% endif %}
-    
-        <!-- Modal -->
-        <div class="modal fade" id="uploadCommodity" tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="uploadCommodityLabel">上架你的商品</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+    <div class="col-10">
+        <div class="row">
+            {% if current_user.is_authenticated %}
+            <div class="col-2">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCommodity">
+                    上架商品
+                </button>
+            </div>
+            
+            
+            {% endif %}
+            
+            <!-- Modal -->
+            <div class="modal fade" id="uploadCommodity" tabindex="-1" role="dialog" aria-labelledby="uploadCommodityLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="uploadCommodityLabel">上架你的商品</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="/commodity/upload" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                            <div class="modal-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="商品名称" aria-label="商品名称"
+                                        id="new_commodity_name" name="new_commodity_name"
+                                        aria-describedby="basic-addon1">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="商品种类" aria-label="商品种类" 
+                                    id="new_commodity_type" name="new_commodity_type"
+                                    aria-describedby="basic-addon1">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="number" class="form-control" placeholder="价格" aria-label="价格" 
+                                    id="new_commodity_price" name="new_commodity_price"
+                                    aria-describedby="basic-addon1">
+                                </div>
+                                <div class="md-form">
+                                    <label for="new_commodity_introduction">介绍</label>
+                                    <textarea id="new_commodity_introduction" name="new_commodity_introduction" class="md-textarea form-control" rows="3"></textarea>
+                                </div>
+                                上传你的实拍图
+                                <br>
+                                <div class="input-group mb-3">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="photo1" name="photo1">
+                                        <label class="custom-file-label" for="photo1" aria-describedby="photoAddon01">Choose
+                                            file</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="photoAddon01">Upload</span>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="photo2" name="photo2">
+                                        <label class="custom-file-label" for="photo2" aria-describedby="photoAddon02">Choose
+                                            file</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="photoAddon02">Upload</span>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="photo3" name="photo3">
+                                        <label class="custom-file-label" for="photo3" aria-describedby="photoAddon03">Choose
+                                            file</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="photoAddon03">Upload</span>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-4">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="photo4" name="photo4">
+                                        <label class="custom-file-label" for="photo4" aria-describedby="photoAddon04">Choose
+                                            file</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="photoAddon04">Upload</span>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="photo5" name="photo5">
+                                        <label class="custom-file-label" for="photo5" aria-describedby="photoAddon05">Choose
+                                            file</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="photoAddon05">Upload</span>
+                                    </div>
+                                </div>
+            
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">上架</button>
+                            </div>
+                        </form>
                     </div>
-                    <form action="/commodity/upload" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                        <div class="modal-body">
-                            商品名称：<input type="text" id="new_commodity_name" name="new_commodity_name"><br>
-                            商品种类：<input type="text" id="new_commodity_type" name="new_commodity_type"><br>
-                            价格：<input type="number" id="new_commodity_price" name="new_commodity_price"><br>
-                            介绍：<textarea id="new_commodity_introduction" name="new_commodity_introduction"></textarea><br>
-                            上传你的实拍图
-                            <br>
-                            <input type="file" id="photo1" name="photo1">
-                            <input type="file" id="photo1" name="photo2">
-                            <input type="file" id="photo1" name="photo3">
-                            <input type="file" id="photo1" name="photo4">
-                            <input type="file" id="photo1" name="photo5">
-    
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                            <button type="submit" class="btn btn-primary">上架</button>
-                        </div>
-                    </form>
                 </div>
             </div>
-        </div>
+            <div class="input-group flex-nowrap col-4">
+                <input type="text" class="form-control" placeholder="商品种类" aria-label="商品种类" name="choose_commodity_type"
+                    id="commodity_type" {% if request.args.get('commodity_type') %} value={{ request.args.get('commodity_type') }}
+                    {% endif %} aria-describedby="addon-wrapping">
+            </div>
+            <div class="input-group flex-nowrap col-4">
+                <input type="text" class="form-control" placeholder="商品名称" aria-label="商品名称" name="choose_commodity_name"
+                    id="commodity_name" {% if request.args.get('commodity_name') %} value={{ request.args.get('commodity_name') }}
+                    {% endif %} aria-describedby="addon-wrapping">
+            </div>
+            <div class="col-2">
+                <button class="btn btn-primary" onclick="search()">搜索</button>
+            </div>
+            
+        </div>       
     </div>
 
     <div class="col">
@@ -73,14 +143,19 @@
     <div class="col">
 
     </div>
-    <div class="col-8">
+    <div class="col-10">
         {% for commodity in commodities %}
+        
         {{ set_var(loop.length) }}
         {% if loop.index % 2 == 1 %}
         <div class="row">
         {% endif %}
         <div class="col-6">
-            <div class="card" style="margin-top: 1%;">
+            {% if commodity.status == 0 %}
+                <div class="card" style="margin-top: 1%;">
+            {% else %}
+                <div class="card" style="margin-top: 1%;display: none;">
+            {% endif %}
                 {% set carouselId = 'carouselExampleIndicators'+commodity.id|string  %}
                 {% set carouselTarget = '#carouselExampleIndicators'+commodity.id|string  %}
                 <div id={{ carouselId }} class="carousel slide" data-ride="carousel">
@@ -139,9 +214,19 @@
                 </div>
                 <div class="card-body">
                     <h5 class="card-title"><b>{{ commodity.commodity_name }}</b></h5>
-                    <p>种类: <b>{{ commodity.commodity_type }}</b></p>
-                    <p>价格: <b>{{ commodity.price }}</b></p>
-                    <p class="card-text">介绍：{{ commodity.commodity_introduction }}</p>
+                    <div class="row">
+                        <div class="col-8">
+                            <p>种类: <b>{{ commodity.commodity_type }}</b></p>
+                            <p>价格: <b>{{ commodity.price }}</b></p>
+                            <p class="card-text">介绍：{{ commodity.commodity_introduction }}</p>
+                        </div>
+                        <div class="col">
+                            {% set buy_id = 'buy_btn_' + commodity.id|string %}
+                            <button type="button" id={{ buy_id }} class="btn btn-primary" onclick="buy_commodity(this.id)">
+                                预约商品
+                            </button>
+                        </div>
+                    </div>                  
                     <div>
                         {% set target = '#uploadCommodity' + commodity.id|string %}
                         {% set target_id = 'uploadCommodity' + commodity.id|string %}
@@ -154,10 +239,22 @@
         </div>
         {% endif %}
         {% endfor %}
+
         {% if get_var() % 2 == 1 %}
         </div>
         {% endif %}
-
+        <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="hintModalLabel">提示</h5>
+                    </div>
+                    <div class="modal-body" id="hintBody">
+                        发送完毕!
+                    </div>
+                </div>
+            </div>
+        </div>
         
     </div>
     <div class="col">
@@ -199,7 +296,6 @@
     var current = parseInt($("#current").val())
     var from = parseInt($("#from").val())
     var to = parseInt($("#to").val())
-
     function init(){
         if(current==1){
             $("#pre_page").addClass("disabled");
@@ -228,8 +324,6 @@
         current = id
         choose_page()
     }
-
-
     function search(){
         window.location = "/commodity/index?commodity_type=" + $("#commodity_type").val()
                             +"&commodity_name=" + $("#commodity_name").val();
@@ -237,6 +331,31 @@
 
     function myCommodity(){
         window.location = "/commodity/my_commodity";
+    }
+
+    function buy_commodity(id){
+        console.log('我要购买了')
+        ids = id.split("_")
+        commodity_id = ids[ids.length - 1]
+        console.log(commodity_id)
+        $.post(
+            '/commodity/buy',
+            { 'id': commodity_id },
+            function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 200) {
+                    $("#hintBody").text("预约成功！");
+                } else {
+                    $("#hintBody").text(data.msg);
+                }
+
+                $("#hintModal").modal("show");
+                setTimeout(function () {
+                    $("#hintModal").modal("hide");
+                    location.reload();
+                }, 2000);
+            }
+        );
     }
 </script>
 {% endblock %}
