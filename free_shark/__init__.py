@@ -105,7 +105,6 @@ def create_app(test_config=None):
     
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
-        print("indentity加载完毕!")
         identity.user=current_user
         if current_user is not None and not current_user.is_anonymous:
             identity.provides.add(UserNeed(current_user.id))

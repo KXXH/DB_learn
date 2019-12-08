@@ -10,19 +10,134 @@
             <th scope="col">邮箱</th>
             <th scope="col">角色</th>
             <th scope="col">创建时间</th>
+            <th scope="col">操作</th>
         </tr>
     </thead>
     <tbody class="">
         {% for user in ans %}           
-        <tr {% if user.type==0 %}class="table-primary"{% endif %}>
+        <tr>
             <th scope="row">{{user.id}}</th>
             <td>{{user.username}}</th>
             <td>{{user.email}}</th> 
-            <td>{{user.role}}</th> 
+            <td>
+                {% for role in user.role %}
+                <span class="badge badge-pill badge-{% if role=="admin" %}primary {% elif role=="forbid" %}warning {% else %}secondary {% endif %}">{{role}}</span>
+                {% endfor %}
+            </td>
             <td >{{user.create_time}}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-sm" onclick="updateUser({{user.id}})">修改</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser({{user.id}})">删除</button>
+            </td> 
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<div class="modal fade show" role="dialog" id="update_modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    修改用户
+                </h5>
+            </div>
+            <div class="modal-body">
+                <form action="/api/user/update" id="update_form">
+                    <input type="text" name="id" style="display: none;">
+                    <div class="form-group">
+                        <label for="usernameEditInput">用户名</label>
+                        <input type="text" class="form-control" id="usernameEditInput" name="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailEditInput">email</label>
+                        <input type="email" class="form-control" id="emailEditInput" name="email">
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" name="status" id="statusEditSwitch">
+                        <input type="text" name="status" style="display: none;" value="off">
+                        <label class="custom-control-label" for="statusEditSwitch">激活状态</label>
+                    </div>
+                    <div class="custom-control custom-switch text-danger">
+                        <input type="checkbox" class="custom-control-input" name="type" id="typeEditSwitch">
+                        <input type="text" name="type" style="display: none;" value="off">
+                        <label class="custom-control-label" for="typeEditSwitch">管理员</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="$('#update_form').ajaxSubmit(onSuccess)">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
+{% block script_at_end %}
+{{super()}}
+<script>
+
+    function check_callback(){
+        return;
+    }
+    function onSuccess(data){
+        $("#update_modal").modal('hide');
+        window.location.reload();
+    }
+    function updateUser(id){
+        var url="/api/user/search"
+        var postData={
+            id:id,
+            page_num:1,
+            page_size:1
+        };
+        $.post(url,postData,function(data){
+            $("#update_form input[name='username']").val(data.data[0].username);
+            $("#update_form input[name='id']").val(data.data[0].id);
+            $("#update_form input[name='email']").val(data.data[0].email);
+            if(data.data[0].status!=0){
+                $("#update_form input[name='status']").attr("checked","true");
+            }else{
+                $("#update_form input[name='status']").removeAttr("checked");
+            }
+            if(!data.data[0].type){
+                $("#update_form input[name='type']").attr("checked","true");
+            }else{
+                $("#update_form input[name='type']").removeAttr("checked");
+            }
+            $("#update_modal").modal('show');
+        });
+    }
+    function deleteUser(id){
+        var url="/api/user/delete"
+        var postData={
+            id:id
+        }
+        $.post(url,postData,function(){
+            window.location.reload();
+        })
+    }
+    function checkUsername_1(){
+        var id=$("#update_form input[name='id']").val();
+        return checkUsername.call(this,id);
+    }
+    function checkEmail_1(){
+        var id=$("#update_form input[name='id']").val();
+        return checkEmail.call(this,id);
+    }
+    function redo(id){
+        var url='/api/user/redoDelete'
+        var postData={
+            id:id
+        }
+        $.post(url,postData,function(){
+            window.location.reload()
+        })
+    }
+    var usernameEditField=InputField("#update_form input[name='username']",checkUsername_1);
+    var emailEditField=InputField("#update_form input[name='email']",checkEmail);
+
+</script>
+
+{% endblock %} 

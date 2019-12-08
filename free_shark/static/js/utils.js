@@ -68,3 +68,43 @@ function InputField(dom,checkFunc=undefined,before_update=undefined,update_callb
     dom.on("input",d.checkFuncDebounce);
     return d
 }
+
+function checkUsername(id=undefined){
+    var username=this.val();
+    var url='/api/user/check_username';
+    var postData={
+        username:username,
+    };
+    if(id){
+        postData['id']=id;
+    }
+    $.post(url,postData,(ans) => {
+        if(ans.status!=200){
+            this.setError(ans.message);
+        }else{
+            this.setPass();
+        }
+    }).then(check_callback);
+}
+function checkEmail(id=undefined){
+    var reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+    var email=this.val();
+    if(!reg.test(email)){
+        this.setError("邮箱格式不正确!");
+        return;
+    }
+    var url="/api/user/check_email";
+    var postData={
+        email:email
+    };
+    if(id){
+        postData['id']=id;
+    }
+    $.post(url,postData,(ans)=>{
+        if(ans['status']!=200){
+            this.setError(ans.message);
+        }else{
+            this.setPass();
+        }
+    }).then(check_callback);
+}

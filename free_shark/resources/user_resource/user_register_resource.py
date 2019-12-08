@@ -28,6 +28,7 @@ class UsernameAvailable(Resource):
     def __init__(self):
         self.parser=reqparse.RequestParser()
         self.parser.add_argument("username",required=True)
+        self.parser.add_argument("id",required=False)
 
     @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
@@ -35,8 +36,11 @@ class UsernameAvailable(Resource):
         user=User.get_user_by_username(d['username'])
         if user is None:
             return Base_Response_Fields("ok")
-        elif current_user.is_active and user.username==current_user.username:
-            return Base_Response_Fields("ok")        
+        elif d.get("id",None) is not None:
+            id=d.get("id")
+            n_user=User.get_user_by_id(id)
+            if n_user.username==d.get("username"):
+                return Base_Response_Fields("ok")        
         else:
             return Base_Response_Fields("该用户名已被注册!",USERNAME_DUPLICATE)
 
@@ -44,6 +48,7 @@ class EmailAvailable(Resource):
     def __init__(self):
         self.parser=reqparse.RequestParser()
         self.parser.add_argument("email",required=True)
+        self.parser.add_argument("id",required=False)
     
     @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
@@ -51,6 +56,11 @@ class EmailAvailable(Resource):
         users=User.search_user_without_page(email=d['email'])
         if len(users)==0:
             return Base_Response_Fields("ok")
+        elif d.get("id",None) is not None:
+            id=d.get("id")
+            n_user=User.get_user_by_id(id)
+            if n_user.email==d.get("email"):
+                return Base_Response_Fields("ok")
         else:
             return Base_Response_Fields("该邮箱已被注册!",USER_EMAIL_INVALID)
 

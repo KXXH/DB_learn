@@ -5,12 +5,6 @@ from free_shark.models.user import User
 
 bp=Blueprint('admin',__name__,url_prefix='/admin')
 
-@bp.route('/user',methods=("GET",))
-@admin_login_required
-def user_admin():
-    flash("Hi, 尊敬的管理员","success")
-    return render_template("admin/user.html")
-
 
 class AdminView(MethodView):
 
@@ -33,6 +27,7 @@ class AdminView(MethodView):
         if not method:
             ans,count=target.search(page_size=self.default_page_size,page_num=self.default_page_num)
             print(ans)
+            flash("Hi, 尊敬的管理员","success")
             return self.render_template(ans=ans,count=count)
         
 
@@ -47,4 +42,4 @@ class UserAdminView(AdminView):
 
     
 
-bp.add_url_rule('/userTest',view_func=UserAdminView.as_view("admin_view"))
+bp.add_url_rule('/user',view_func=UserAdminView.as_view("admin_view"))

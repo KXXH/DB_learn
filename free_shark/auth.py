@@ -59,6 +59,10 @@ def editUser():
 
 @bp.route("/register",methods=("GET",))
 def register():
+    if current_user.is_authenticated:
+        logout()
+
+
     return render_template("register.html")
 
 send_email_permission=SendActivationEmailPermission()
