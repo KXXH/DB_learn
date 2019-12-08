@@ -11,3 +11,8 @@ api.add_resource(user_resource.UserResourceUpdate,'/user/update')
 api.add_resource(user_register_resource.UsernameAvailable,'/user/check_username')
 api.add_resource(user_register_resource.EmailAvailable,'/user/check_email')
 api.add_resource(user_register_resource.SendActivationEmail,'/user/send_act_email')
+api.add_resource(user_resource.UserRecoverResource,'/user/redoDelete')
+
+@bp.route("/heartbeat",methods=["GET","POST"])
+def heartbeat():
+    return "ok"

@@ -72,39 +72,6 @@
         function sendRegister(){
             console.log($("#register_form").serializeArray());
         }
-        function checkUsername(){
-            var username=this.val();
-            var url='/api/user/check_username';
-            var postData={
-                username:username,
-            };
-            $.post(url,postData,(ans) => {
-                if(ans.status!=200){
-                    this.setError(ans.message);
-                }else{
-                    this.setPass();
-                }
-            }).then(check_callback);
-        }
-        function checkEmail(){
-            var reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-            var email=this.val();
-            if(!reg.test(email)){
-                this.setError("邮箱格式不正确!");
-                return;
-            }
-            var url="/api/user/check_email";
-            var postData={
-                email:email
-            };
-            $.post(url,postData,(ans)=>{
-                if(ans['status']!=200){
-                    this.setError(ans.message);
-                }else{
-                    this.setPass();
-                }
-            }).then(check_callback);
-        }
         function checkPassword(){
             var password=passwordField.val();
             var password_confirm=passwordConfirmField.val();

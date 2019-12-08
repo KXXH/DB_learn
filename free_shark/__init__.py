@@ -71,7 +71,11 @@ def create_app(test_config=None):
 
     app.add_template_global(set_var, 'set_var')
     app.add_template_global(get_var, 'get_var')
-   
+    from urllib.parse import urlencode
+    from free_shark.utils import replace_dict
+    app.jinja_env.filters['urlencode']=urlencode
+    app.jinja_env.filters['replace_dict']=replace_dict
+
     app.register_error_handler(403,frobidden_handler)
 
     principals = Principal(app)
@@ -105,7 +109,6 @@ def create_app(test_config=None):
     
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
-        print("indentity加载完毕!")
         identity.user=current_user
         if current_user is not None and not current_user.is_anonymous:
             identity.provides.add(UserNeed(current_user.id))

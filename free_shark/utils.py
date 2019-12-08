@@ -118,3 +118,7 @@ def check_email(email):
         return email
     else:
         raise ValueError("%s is not a email!" % email)
+
+def replace_dict(d,target,value):
+    d[target]=value
+    return d

@@ -71,6 +71,10 @@ class User(UserMixin):
     def login(self):
         self._activite_flag=True
 
+    def recover(self):
+        if self.status<0:
+            self.status=-self.status
+
     @property
     def role(self):
         ans=[]
@@ -256,20 +260,21 @@ class User(UserMixin):
             db.rollback()
             abort(500)
         
+    @user_id_not_none
+    def safe_delete_user(self):
+        self.status=-self.status
 
     @staticmethod
     def create_user_from_rows(row):
         user=User(id=row[0],username=row[1],password=row[2],salt=row[3],email=row[4],activation=row[5],type=row[6],status=row[7],create_time=row[8],token=row[9])
-        print("row= ",row)
         return user
 
     @staticmethod
-    def get_user_by_id(id):
+    def get_user_by_id(id,mask=0):
         db=get_db()
         cursor=db.cursor()
-        cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.id=%s',str(id))
+        cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.id=%s AND user.status>=%s',(str(id),mask))
         result = cursor.fetchone()  #由于id的唯一性，至多只有一个结果
-        print("result=",result)
         if result is None:
             return None
         user=User.create_user_from_rows(result)
@@ -278,8 +283,8 @@ class User(UserMixin):
         return user
 
     @staticmethod
-    def search_user(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1,**kwargs):
-        users=User.search_user_without_page(username,email,activation,type,status,create_time,**kwargs)
+    def search_user(id="%%",username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",page_size=20,page_num=1,**kwargs):
+        users=User.search_user_without_page(id,username,email,activation,type,status,create_time,**kwargs)
         return users[(page_num-1)*page_size:page_num*page_size],len(users)
 
     @staticmethod
@@ -287,20 +292,22 @@ class User(UserMixin):
         return User.search_user(*args,**kwargs)
 
     @staticmethod
-    def search_user_without_page(username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%"):
+    def search_user_without_page(id="%%",username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%"):
         sql="""
         SELECT * FROM user WHERE 
+            id LIKE %s AND
             username LIKE %s AND 
             email LIKE %s AND
             activation LIKE %s AND
             type LIKE %s AND
             status LIKE %s AND
             create_time LIKE %s
+            AND status>=0
             """
         db=get_db_with_dict_cursor()
         cursor=db.cursor()
-        cursor.execute(sql,(username,email,activation,type,status,create_time))
-        print(cursor.mogrify(sql,(username,email,activation,type,status,create_time)))
+        cursor.execute(sql,(id,username,email,activation,type,status,create_time))
+        print(cursor.mogrify(sql,(id,username,email,activation,type,status,create_time)))
         results=cursor.fetchall()
         users=[]
         for result in results:
@@ -309,10 +316,10 @@ class User(UserMixin):
         return users
 
     @staticmethod
-    def get_user_by_username(username):
+    def get_user_by_username(username,mask=0):
         db=get_db()
         cursor=db.cursor()
-        cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.username=%s',str(username))
+        cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.username=%s AND user.status>=%s',(str(username),mask))
         result = cursor.fetchone()  #由于username的唯一性，至多只有一个结果
         if result is None:
             return None
@@ -359,7 +366,7 @@ class User(UserMixin):
         db=get_db_with_dict_cursor()
         cursor=db.cursor()
         sql="""
-        SELECT user.*,token.token FROM user JOIN token ON token.user_id=user.id WHERE token.token=%s
+        SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE token.token=%s AND user.status>=0
         """
         cursor.execute(sql,token)
         result=cursor.fetchone()
@@ -369,4 +376,16 @@ class User(UserMixin):
         return user
         
 
-
+    @staticmethod
+    def get_deleted_user_by_id(id):
+        db=get_db_with_dict_cursor()
+        cursor=db.cursor()
+        sql="""
+        SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.status<0 AND user.id=%s
+        """
+        cursor.execute(sql,id)
+        result=cursor.fetchone()
+        if result is None:
+            return None
+        user=User(**result)
+        return user

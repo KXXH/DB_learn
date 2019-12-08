@@ -11,6 +11,7 @@
             <div class="navbar-nav mr-auto">
                 {% from 'bootstrap/nav.html' import render_nav_item %}
                 {{ render_nav_item('commodity.index','首页') }}
+                {{ render_nav_item('admin.admin_user_view','用户管理') }}
                 {{ render_nav_item('auth.login','登录') }}
                 {{ render_nav_item('auth.logout','登出') }}
             </div>

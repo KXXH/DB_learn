@@ -5,12 +5,6 @@ from free_shark.models.user import User
 
 bp=Blueprint('admin',__name__,url_prefix='/admin')
 
-@bp.route('/user',methods=("GET",))
-@admin_login_required
-def user_admin():
-    flash("Hi, 尊敬的管理员","success")
-    return render_template("admin/user.html")
-
 
 class AdminView(MethodView):
 
@@ -28,13 +22,28 @@ class AdminView(MethodView):
 
     @admin_login_required
     def get(self):
+        d=request.args.to_dict()
+        d.setdefault('page_size',self.default_page_size)
+        d.setdefault('page_num',self.default_page_num)
+        d['page_size']=int(d['page_size'])
+        d['page_num']=int(d['page_num'])
         method=request.args.get("method")
         target=self.get_target()
+        page_num=self.default_page_num
+        page_size=self.default_page_size
+        if request.args.get("page_num"):
+            page_num=int(request.args.get("page_num"))
+        if request.args.get("page_size"):
+            page_size=int(request.args.get("page_size"))
         if not method:
-            ans,count=target.search(page_size=self.default_page_size,page_num=self.default_page_num)
-            print(ans)
-            return self.render_template(ans=ans,count=count)
-        
+            ans,count=target.search(page_size=page_size,page_num=page_num)
+            flash("Hi, 尊敬的管理员","success")
+            return self.render_template(ans=ans,count=count,page_num=page_num,page_size=page_size)
+        elif method=='search':
+            del d['method']
+            ans,count=target.search(**d)
+            flash("为您搜索到%d条记录" % count,"success")
+            return self.render_template(ans=ans,count=count,page_num=page_num,page_size=page_size)
 
 
 class UserAdminView(AdminView):
@@ -47,4 +56,4 @@ class UserAdminView(AdminView):
 
     
 
-bp.add_url_rule('/userTest',view_func=UserAdminView.as_view("admin_view"))
+bp.add_url_rule('/user',view_func=UserAdminView.as_view("admin_user_view"))
