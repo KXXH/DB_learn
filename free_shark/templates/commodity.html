@@ -219,6 +219,23 @@
                             <p>种类: <b>{{ commodity.commodity_type }}</b></p>
                             <p>价格: <b>{{ commodity.price }}</b></p>
                             <p class="card-text">介绍：{{ commodity.commodity_introduction }}</p>
+                            {% set comment_zone_id = 'comment_zone_'+commodity.id|string %}
+                            <div class="form-group" id={{ comment_zone_id }}>
+                                {% set show_comment_btn_id = 'show_comment_btn_id_'+commodity.id|string %}
+                                {% set FormControlTextarea_id = 'FormControlTextarea_'+commodity.id|string %}
+                                <div class="row">
+                                    <div class="col-6">
+                                        <button type="button" id={{ show_comment_btn_id }} class="btn btn-secondary btn-sm" onclick="show_comment(this.id)">查看评论</button>
+                                    </div>
+                                </div>
+                                
+                                <textarea class="form-control" id={{ FormControlTextarea_id }} rows="5" readonly="readonly" style="margin-top: 2%;"></textarea>
+                            </div>
+                            <p>
+                                {% set huifu_id = '#huifu-'+commodity.id|string %}
+                                {% set huifu_target_id = 'huifu-'+commodity.id|string %}
+                                <li class="d-inline ml-2"><a href={{ huifu_id }} data-toggle="collapse" class="text-primary">评论</a></li>
+                            </p>
                         </div>
                         <div class="col">
                             {% set buy_id = 'buy_btn_' + commodity.id|string %}
@@ -226,7 +243,20 @@
                                 预约商品
                             </button>
                         </div>
-                    </div>                  
+                    </div>   
+                    <div id={{ huifu_target_id }} class="mt-4 collapse" style="margin-left:5%">
+                        <form method="post" th:action="">
+                            <div class="row">
+                                <div>
+                                    <input type="text" class="input-size" name="content" placeholder="评论" />
+                                </div>
+                                <div class="text-right" style="margin-left: 5%;">
+                                    <button type="submit" class="btn btn-primary btn-sm" onclick="#">&nbsp;&nbsp;评&nbsp;&nbsp;论&nbsp;&nbsp;</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
                     <div>
                         {% set target = '#uploadCommodity' + commodity.id|string %}
                         {% set target_id = 'uploadCommodity' + commodity.id|string %}
@@ -293,6 +323,25 @@
 {% endblock %}
 {% block script_at_end %}
 <script>
+    function show_comment(id) {
+        ids = id.split("_")
+        commodity_id = ids[ids.length - 1]
+        target_id = '#FormControlTextarea_'+ commodity_id
+        console.log(commodity_id)
+
+        $.post(
+            '/commodity/show_comment',
+            { 'id': commodity_id },
+            function (data) {
+                data = $.parseJSON(data);
+                if (data.code == 200) {
+                    $(target_id).val(data.msg);
+                } else {
+                    console.log(data.msg);
+                }
+            }
+        );
+    }
     var current = parseInt($("#current").val())
     var from = parseInt($("#from").val())
     var to = parseInt($("#to").val())

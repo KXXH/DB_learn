@@ -240,5 +240,22 @@ def wanna_buy():
         if student._school_number == commodity.owner_student_id:
             return make_json(500,'这是您自己的商品')
         else:
-            # 首先要把商品的状态改为1
-            return make_json(200,'success')
+            # 生成订单
+
+            # 然后要把商品的状态改为1，表示已经被预约不再显示
+
+            # 交易完成之后就把商品状态改为2
+            commodity.status = 1
+            if commodity.update_commodity()== 1:
+                return make_json(200,'预约成功')
+            else:
+                return make_json(500,'预约失败')
+
+@bp.route('/show_comment',methods = ['POST','GET'])
+def show_comment():
+    if request.method == 'POST':
+        data = request.get_data()
+        data = str(data,'utf-8')
+        id = int(data.split('=')[-1])
+        print(id)
+        return make_json(200,'success')
