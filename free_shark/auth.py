@@ -16,12 +16,15 @@ def login():
     form=login_form.LoginForm()
     if form.validate_on_submit():
         c_user=user.User.attempt_login(form.data['username'],form.data['password'])   #需要按需加载用户信息
-        
-        if c_user.is_authenticated():
-            #logout()
+        print("is blocked?",c_user.is_blocked)
+        if c_user.is_blocked and c_user.is_authenticated():
+                flash("你已被封禁, 最近的封禁记录: 因 %s 被封号至 %s " % (c_user.active_block_list[0].reason,c_user.active_block_list[0].end_time) ,"warning")
+        elif c_user.is_authenticated():
             login_user(c_user,remember=form.data['remember'])  #需要加入next跳转
-            if not c_user.status:
+            if c_user.is_forbid:
                 flash("你还没有激活账户,请快去<a href='/auth/send_activation'>激活</a>!","warning")
+            if c_user.is_admin:
+                flash("尊敬的管理员, 请前往<a href='/admin/user'>页面</a>管理系统!","success")
             identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(c_user.id))
             next = request.args.get('next')
@@ -50,7 +53,6 @@ def editUser():
             passwordInputEnable=False
         if "email" not in targets:
             emailInputEnable=False
-    print(usernameInputEnable,passwordInputEnable,emailInputEnable)
     return render_template("edit_userinfo.html",
         usernameInputEnable=usernameInputEnable,
         passwordInputEnable=passwordInputEnable,

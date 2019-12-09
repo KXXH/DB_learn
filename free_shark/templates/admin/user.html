@@ -1,5 +1,10 @@
 {% extends 'admin/admin_layout.html' %}
 
+{% block style %}
+{{super()}}
+<link rel="stylesheet" href="/static/css/tempusdominus-bootstrap-4.min.css">
+{% endblock %}
+
 {% block content %}
 <div class="input-group mb-3">
     <div class="input-group-prepend">
@@ -35,14 +40,30 @@
             <td>{{user.email}}</th> 
             <td>
                 {% for role in user.role %}
-                <span class="badge badge-pill badge-{% if role=="admin" %}primary {% elif role=="forbid" %}warning {% else %}secondary {% endif %}">{{role}}</span>
+                <span class="badge badge-pill badge-{% if role=="admin" %}primary {% elif role=="forbid" %}secondary {% elif role=="blocked" %}warning {% else %}info {% endif %}">{{role}}</span>
                 {% endfor %}
             </td>
             <td >{{user.create_time}}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-sm" onclick="updateUser({{user.id}})">修改</button>
+                <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" id="blockBtn{{user.id}}">封禁</button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser({{user.id}})">删除</button>
+                <form class="dropdown-menu p-4" aria-labelledby="blockBtn{{user.id}}" action="\api\block\quickCreate" data-flip="false" id="blockForm{{user.id}}" method="POST">
+                    <h3>快速封禁</h3>
+                        <input type="text" style="display: none;" value="{{user.id}}" name="user_id">
+                        <div class="form-group">
+                            <label for="blockReason{{user.id}}">理由</label>
+                            <input type="text" class="form-control" id="blockReason{{user.id}}" placeholder="填写封禁的理由" name="reason" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="blockTime{{user.id}}">时长</label>
+                            <input type="number" class="form-control" id="blockTime{{user.id}}" placeholder="时长(天)" name="time" required>
+                        </div>
+                        <div class="mb-2"><a href="block?method=search&user_id={{user.id}}">查看该用户封禁详情</a></div>
+                        <button type="submit" class="btn btn-warning" onclick="$('#blockForm{{user.id}}').ajaxSubmit(onSuccess)"  {% if user.is_blocked %}disabled{% endif %}>{% if user.is_blocked %}已封禁{% else %}立即封禁{% endif %}</button>
+                </form>
             </td> 
+            
         </tr>
         {% endfor %}
     </tbody>
@@ -91,6 +112,8 @@
 
 {% block script_at_end %}
 {{super()}}
+<script src="/static/js/moment.js"></script>
+<script src="/static/js/tempusdominus-bootstrap-4.min.js"></script>
 <script>
 
     function check_callback(){

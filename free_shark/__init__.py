@@ -71,6 +71,8 @@ def create_app(test_config=None):
 
     app.add_template_global(set_var, 'set_var')
     app.add_template_global(get_var, 'get_var')
+
+
     from urllib.parse import urlencode
     from free_shark.utils import replace_dict
     app.jinja_env.filters['urlencode']=urlencode

@@ -58,3 +58,25 @@ class User_Search_Fields(Base_Response_Fields):
         d['data']=fields.List(fields.Nested(self.user_fields))
         d['count']=fields.Integer
         return d
+
+class Block_Search_Fields(Base_Response_Fields):
+    def __init__(self,username=None,data=None,count=0,**kwargs):
+        super().__init__()
+        self.block_fields={
+            "id":fields.Integer,
+            "user_id":fields.Integer,
+            "reason":fields.String,
+            "start_time":fields.DateTime,
+            "end_time":fields.DateTime
+        }
+        self.count=count
+        self.data=data
+        self.username=username
+    
+    @property
+    def resource_fields(self):
+        d=super().resource_fields.copy()
+        d['data']=fields.List(fields.Nested(self.block_fields))
+        d['count']=fields.Integer
+        d['username']=fields.String
+        return d

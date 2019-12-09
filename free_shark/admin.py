@@ -1,7 +1,8 @@
-from flask import Blueprint,render_template,flash,current_app,request
+from flask import Blueprint,render_template,flash,current_app,request,abort
 from flask.views import MethodView
 from free_shark.utils import admin_login_required
 from free_shark.models.user import User
+from free_shark.models.block import Block
 
 bp=Blueprint('admin',__name__,url_prefix='/admin')
 
@@ -37,14 +38,15 @@ class AdminView(MethodView):
             page_size=int(request.args.get("page_size"))
         if not method:
             ans,count=target.search(page_size=page_size,page_num=page_num)
-            flash("Hi, 尊敬的管理员","success")
+            
             return self.render_template(ans=ans,count=count,page_num=page_num,page_size=page_size)
         elif method=='search':
             del d['method']
             ans,count=target.search(**d)
             flash("为您搜索到%d条记录" % count,"success")
             return self.render_template(ans=ans,count=count,page_num=page_num,page_size=page_size)
-
+        else:
+            abort(404)
 
 class UserAdminView(AdminView):
 
@@ -54,6 +56,14 @@ class UserAdminView(AdminView):
     def get_target(self):
         return User
 
-    
+
+class BlockAdminView(AdminView):
+
+    def get_template_name(self):
+        return "admin/block.html"
+
+    def get_target(self):
+        return Block
 
 bp.add_url_rule('/user',view_func=UserAdminView.as_view("admin_user_view"))
+bp.add_url_rule('/block',view_func=BlockAdminView.as_view("admin_block_view"))
