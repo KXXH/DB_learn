@@ -5,6 +5,7 @@ from werkzeug.exceptions import Forbidden
 from free_shark.forms import login_form,student_form
 from free_shark.models import user
 from free_shark.models import student
+from free_shark.models import order
 from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity,AnonymousIdentity
 from flask_login import login_user,login_required,logout_user,current_user
 from free_shark.resources.user_resource.user_register_resource import SendActivationEmailPermission
@@ -90,25 +91,6 @@ def activation(token):
     return render_template("activation_success.html")
 
 
-@bp.route('/test',methods=("GET","POST"))
-def test():
-    form=student_form.StudentForm()
-    data ={}
-    if form.validate_on_submit():
-        print("form_data=",form.data)
-        stu=student.Student.get_student_real_name(form.data['real_name'])
-        stu.update_college=form.data['college']
-        data = {
-        "real_name": stu._real_name,
-        "college": stu._college,
-        "user_id": stu._user_id,
-        "school_number": stu._school_number,
-        "banji": stu._banji,
-        "contact": stu._contact
-        }
-        #return "已更新！！！！！"
-    return render_template("testStudent.html",form=form,data=data)
-
 @bp.route("/logout")
 @login_required
 def logout():
@@ -117,4 +99,20 @@ def logout():
                         identity=AnonymousIdentity())
     return redirect("/hello")
 
-
+@bp.route('/indexorder',methods=("GET","POST"))
+def indexorder():
+    if request.method == 'GET':
+        commodity_name = request.args.get('commodity_name') or None
+        order_id = request.args.get('order_id') or None
+        user_id = request.args.get('current_user_id')
+        print(commodity_name)
+        print(order_id)
+        print(user_id)
+        #stu=student.Student.get_student_id(user_id)
+        #print(stu._school_number)
+        ordes,count = order.Order.search_user_without_page(id="%order_id %",commodity_name="%commodity_name%",buyer_id="%user_id%",school_number="%stu._school_number%")
+        #r = Commodity.search_commodity(-1,0,sys.maxsize,1,commodity_type,commodity_name)
+        print(ordes)
+        print(count)
+        # 设置分页
+        return render_template("comorder.html")

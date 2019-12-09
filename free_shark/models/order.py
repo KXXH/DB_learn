@@ -6,8 +6,9 @@ class Order:
     def __init__(self,**kwargs):
         self._id=kwargs.get('id',None)
         self._commodity_id=kwargs.get('commodity_id',None)
+        self._commodity_name=kwargs.get('commodity_name',None)
         self._buyer_id=kwargs.get('buyer_id',None)
-        self._seller_id=kwargs.get('seller_id',None)
+        self._school_number=kwargs.get('school_number',None)
         self._status=kwargs.get('status',None)
         self._create_time=kwargs.get('create_time',None)
         print("到这里了！！！！！！！！！")
@@ -21,11 +22,11 @@ class Order:
         # 创建时间
         create_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         print(create_time)
-        sql = "INSERT INTO comorder(commodity_id,buyer_id,seller_id,status,create_time) VALUES (%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO comorder(commodity_id,commodity_name,buyer_id,school_number,status,create_time) VALUES (%s,%s,%s,%s,%s,%s)"
         try:
             # 执行sql语句
             print("执行sql语句")
-            cursor.execute(sql,(orde._commodity_id,orde._buyer_id,orde._seller_id,orde._status,create_time))
+            cursor.execute(sql,(orde._commodity_id,orde._commodity_name,orde._buyer_id,orde._school_number,orde._status,create_time))
             # 提交到数据库执行
             print("提交到数据库执行")
             db.commit()
@@ -56,7 +57,7 @@ class Order:
 
     @staticmethod
     def create_ord_from_rows(row):
-        orde=Order(id=row[0],commodity_id=row[1],buyer_id=row[2],seller_id=row[3],status=row[4],create_time=row[5])
+        orde=Order(id=row[0],commodity_id=row[1],commodity_name=row[2],buyer_id=row[3],school_number=row[4],status=row[5],create_time=row[6])
         return orde
 
     @staticmethod
@@ -73,10 +74,10 @@ class Order:
         db.close()
 
     @staticmethod
-    def get_order_by_seller_id(seller_id):
+    def get_order_by_school_number(school_number):
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('SELECT* FROM comorder WHERE seller_id = %s',str(seller_id))
+        cursor.execute('SELECT* FROM comorder WHERE school_number = %s',str(school_number))
         results = cursor.fetchall()
         print(results)
         ordes=[]
@@ -138,14 +139,41 @@ class Order:
 
     #查看作为卖家没有处理的订单
     @staticmethod
-    def get_order_by_seller_id_and_status0(seller_id):
+    def get_order_by_school_number_and_status0(school_number):
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('SELECT* FROM comorder WHERE seller_id = %s and status = %s',(str(seller_id),'0'))
+        cursor.execute('SELECT* FROM comorder WHERE school_number = %s and status = %s',(str(school_number),'0'))
         results = cursor.fetchone()
         print("results=",results)
         if results is None:
             return None
         orde=Order.create_ord_from_rows(results)
         return orde
+        db.close()
+
+    @staticmethod
+    def search_user_without_page(id="%%",commodity_id="%%",commodity_name="%%",buyer_id="%%",school_number="%%",status="%%",create_time="%%"):
+        sql="""
+        SELECT * FROM comorder WHERE 
+            id LIKE %s AND
+            commodity_id LIKE %s AND 
+            commodity_name LIKE %s AND 
+            buyer_id LIKE %s AND
+            school_number LIKE %s AND
+            status LIKE %s AND
+            create_time LIKE %s
+            """
+        db = get_db()
+        cursor=db.cursor()
+        cursor.execute(sql,(id,commodity_id,commodity_name,buyer_id,school_number,status,create_time))
+        print(id,commodity_id,commodity_name,buyer_id,school_number,status,create_time)
+        print(cursor.mogrify(sql,(id,commodity_id,commodity_name,buyer_id,school_number,status,create_time)))
+        results=cursor.fetchall()
+        ordes=[]
+        if results is None:
+            return None
+        for result in results:
+            orde=Order.create_ord_from_rows(result)
+            ordes.append(orde)
+        return ordes,len(ordes)
         db.close()

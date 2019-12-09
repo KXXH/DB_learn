@@ -14,7 +14,7 @@ class TestOrder:
     #@pytest.mark.parametrize('id',[1])
     def test_add_stu1(self,app):
         with app.app_context():
-            Order.add_order(commodity_id='1',buyer_id='2',seller_id='3',status='1')
+            Order.add_order(commodity_id='1',commodity_name='上好佳',buyer_id='2',school_number='2016141225117',status='1')
             orde=Order.get_order_by_id(3)
             assert orde is not None
 
@@ -23,7 +23,7 @@ class TestOrder:
             orde=Order.get_order_by_id(251)
             assert orde is None
 
-    @pytest.mark.parametrize('value',['1','5'])
+    @pytest.mark.parametrize('value',['35','36'])
     def test_select1_by_commodity_id(self,app,value):
         with app.app_context():
             orde=Order.get_order_by_commodity_id(value)
@@ -36,7 +36,7 @@ class TestOrder:
 
     def test_user_delete1(self,app):
         with app.app_context():
-            Order.add_order(commodity_id='1',buyer_id='5',seller_id='6',status='2')
+            Order.add_order(commodity_id='1',commodity_name='背背佳',buyer_id='5',school_number='6',status='2')
             orde=Order.get_order_by_id(5)
             assert orde is not None
             orde.delete_order()
@@ -50,19 +50,25 @@ class TestOrder:
             orde=Order.get_order_by_id(3)
             assert orde.update_status=='0'
 
-    @pytest.mark.parametrize('value',['2','3'])
-    def test_select1_by_seller_id_and_status0(self,app,value):
+    @pytest.mark.parametrize('value',['2016141225117','2016141225117'])
+    def test_select1_by_school_number_and_status0(self,app,value):
         with app.app_context():
-            orde=Order.get_order_by_seller_id_and_status0(value)
+            orde=Order.get_order_by_school_number_and_status0(value)
             assert orde is not None
 
-    def test_select1_by_seller_id(self,app):
+    def test_select1_by_school_number(self,app):
         with app.app_context():
-            ordes,count=Order.get_order_by_seller_id(3)
+            ordes,count=Order.get_order_by_school_number(2016141225117)
             assert len(ordes)==count
-            assert ordes[0]._id==2 and ordes[1]._id==3
+            assert ordes[0]._id==1 and ordes[1]._id==2
 
     def test_select1_by_buyer_id(self,app):
         with app.app_context():
             orde=Order.get_order_by_buyer_id(1)
             assert orde is not None
+
+    def test_select_search_user(self,app):
+        with app.app_context():
+            ordes,count=Order.search_user_without_page(commodity_id="%3%")
+            assert len(ordes)==count
+            assert ordes[0]._id==1 and ordes[1]._id==2
