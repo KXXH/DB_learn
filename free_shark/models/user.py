@@ -7,6 +7,7 @@ from free_shark.db import get_db,close_db,db_required,abort,get_db_with_dict_cur
 from free_shark.exceptions.db_exception import DB_Exception
 from free_shark.exceptions.user_model_exception import UserModelException,UserEmailInvalid,UsernameDuplicate
 from free_shark.utils import make_secure_token
+from free_shark.models.block import Block
 from free_shark.db import get_db,close_db,db_required,abort
 
 class User(UserMixin):
@@ -24,6 +25,8 @@ class User(UserMixin):
         self._create_time=kwargs.get('create_time',None)
         self._token=kwargs.get('token',None)
         self._activite_flag=False
+        self._block_list=None
+        self._active_block_list=None
     
     def is_authenticated(self):
         return self._activite_flag
@@ -78,7 +81,10 @@ class User(UserMixin):
     @property
     def role(self):
         ans=[]
-        if self.status==0:
+        if self.is_blocked:
+            ans.append("blocked")
+            return ans
+        if self.is_forbid:
             ans.append("forbid")
             return ans
         if self.type==1:
@@ -92,8 +98,18 @@ class User(UserMixin):
         return self._id
 
     @property
+    def is_user(self):
+        return self.type==1
+
+    @property
     def is_admin(self):
         return self.type==0
+
+    @property
+    def is_forbid(self):
+        if self.is_admin:
+            return False
+        return self.status==0
 
     @property
     def username(self):
@@ -242,8 +258,6 @@ class User(UserMixin):
         except:
             db.rollback()
             abort(500)
-        
-
 
     @property
     def create_time(self):
@@ -263,6 +277,27 @@ class User(UserMixin):
     @user_id_not_none
     def safe_delete_user(self):
         self.status=-self.status
+
+    
+    @property
+    def is_blocked(self):
+        if len(self.active_block_list):
+            print("block:",self.active_block_list)
+            return True
+        else:
+            return False
+            
+    @property
+    def block_list(self):
+        if self._block_list is None:
+            self._block_list=Block.get_block_list_by_user_id(self.id)
+        return self._block_list
+
+    @property
+    def active_block_list(self):
+        if self._active_block_list is None:
+            self._active_block_list=Block.get_active_block_list_by_user_id(self.id)
+        return self._active_block_list
 
     @staticmethod
     def create_user_from_rows(row):
@@ -320,6 +355,7 @@ class User(UserMixin):
         db=get_db()
         cursor=db.cursor()
         cursor.execute('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.username=%s AND user.status>=%s',(str(username),mask))
+        #print(cursor.mogrify('SELECT user.*,token.token FROM user LEFT JOIN token ON token.user_id=user.id WHERE user.username=%s AND user.status>=%s',(str(username),mask)))
         result = cursor.fetchone()  #由于username的唯一性，至多只有一个结果
         if result is None:
             return None

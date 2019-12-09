@@ -1,0 +1,70 @@
+{% extends 'admin/admin_layout.html' %}
+
+{% block style %}
+{{super()}}
+<link rel="stylesheet" href="/static/css/tempusdominus-bootstrap-4.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="search_target">选择搜索类型</button>
+        <div class="dropdown-menu">
+        <a class="dropdown-item" href="JavaScript:$('#search_target').text('用户名')">用户名</a>
+        <a class="dropdown-item" href="javascript:$('#search_target').text('用户id')">用户id</a>
+        <a class="dropdown-item" href="javascript:$('#search_target').text('理由')">理由</a>
+        <div role="separator" class="dropdown-divider"></div>
+        <a class="dropdown-item" href="javascript:$('#search_target').text('模糊搜索')">模糊搜索</a>
+        </div>
+    </div>
+    <input type="text" class="form-control" aria-label="Text input with dropdown button" id="search_content">
+    <div class="input-group-append">
+        <button class="btn btn-secondary" onclick="searchUser()">搜索</button>
+    </div>
+</div>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">用户id</th>
+            <th scope="col">理由</th>
+            <th scope="col">开始时间</th>
+            <th scope="col">结束时间</th>
+            <th scope="col">操作</th>
+        </tr>
+    </thead>
+    <tbody class="">
+        {% for item in ans %}           
+        <tr>
+            <th scope="row">{{item.id}}</th>
+            <td>{{item.user_id}}</th>
+            <td>{{item.reason}}</th> 
+            <td >{{item.start_time}}</td>
+            <td>{{item.end_time}}</td> 
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeBlock({{item.id}})">撤除封禁</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% from 'utils.html' import Pagination %}
+{{ Pagination(page_num,page_size,count) }}
+
+{% endblock %}
+
+{% block script_at_end %}
+
+{{super()}}
+<script>
+    function removeBlock(id){
+        var url="/api/block/delete";
+        var postData={
+            id:id
+        }
+        $.post(url,postData,onSuccess);
+    }
+    function onSuccess(data){
+        window.location.reload();
+    }
+</script>
+
+{% endblock %}
