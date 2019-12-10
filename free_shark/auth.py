@@ -9,6 +9,7 @@ from free_shark.models import order
 from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity,AnonymousIdentity
 from flask_login import login_user,login_required,logout_user,current_user
 from free_shark.resources.user_resource.user_register_resource import SendActivationEmailPermission
+from flask import abort
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')
 
@@ -102,17 +103,77 @@ def logout():
 @bp.route('/indexorder',methods=("GET","POST"))
 def indexorder():
     if request.method == 'GET':
+        user_id = request.args.get('current_user_id') or None
+        print(user_id)
+        if user_id is not None:
+            stu=student.Student.get_student_id(user_id)
+            print(stu._school_number)
+            ordes,count=order.Order.get_order_by_school_number(stu._school_number)
+            print(ordes)
+            print(count)
+            user_school_number=stu._school_number
+            return render_template("comorder.html",ordes=ordes,user_school_number=user_school_number)
+        elif user_id is None:
+            return render_template("comorder.html")
+        else:
+            abort(404)
+        
+@bp.route('/searchorder',methods=("GET","POST"))
+def searchorder():
+    if request.method == 'GET':
         commodity_name = request.args.get('commodity_name') or None
         order_id = request.args.get('order_id') or None
         user_id = request.args.get('current_user_id')
         print(commodity_name)
         print(order_id)
         print(user_id)
-        #stu=student.Student.get_student_id(user_id)
-        #print(stu._school_number)
-        ordes,count = order.Order.search_user_without_page(id="%order_id %",commodity_name="%commodity_name%",buyer_id="%user_id%",school_number="%stu._school_number%")
+        stu=student.Student.get_student_id(user_id)
+        print(stu._school_number)
+        if commodity_name is None and order_id is None:
+            ordes,count = order.Order.get_order_by_id_commodity(school_number=str(stu._school_number))
+        elif commodity_name is None:
+            ordes,count = order.Order.get_order_by_id_commodity(id=str(order_id),school_number=str(stu._school_number))
+        elif order_id is None:
+            ordes,count = order.Order.get_order_by_id_commodity(commodity_name=str(commodity_name),school_number=str(stu._school_number))
+        else:
+            ordes,count = order.Order.get_order_by_id_commodity(id=str(order_id),commodity_name=str(commodity_name),school_number=str(stu._school_number))
         #r = Commodity.search_commodity(-1,0,sys.maxsize,1,commodity_type,commodity_name)
         print(ordes)
         print(count)
         # 设置分页
-        return render_template("comorder.html")
+        return render_template("comorder.html",ordes=ordes)
+
+@bp.route('/search_order_status',methods=("GET","POST"))
+def search_order_status():
+    if request.method == 'GET':
+        user_id = request.args.get('current_user_id') or None
+        print(user_id)
+        if user_id is not None:
+            stu=student.Student.get_student_id(user_id)
+            print(stu._school_number)
+            ordes,count=order.Order.get_order_by_school_number_and_status(stu._school_number,"0")
+            print(ordes)
+            print(count)
+            return render_template("comorder.html",ordes=ordes)
+        elif user_id is None:
+            return render_template("comorder.html")
+        else:
+            abort(404)
+
+@bp.route('/update',methods=("GET","POST"))
+def update():
+    if request.method == 'GET':
+        id = request.args.get('id') or None
+        new_status = request.args.get('new_status') or None
+        
+        if id is not None:
+            print(id)
+            print(new_status)
+            orde=order.Order.get_order_by_id(id)
+            status=orde.update_status=new_status
+            print(status)
+            #print(orde)
+            return render_template("comorder.html")
+        elif id is None:
+            abort(404)
+            

@@ -53,7 +53,7 @@ class TestOrder:
     @pytest.mark.parametrize('value',['2016141225117','2016141225117'])
     def test_select1_by_school_number_and_status0(self,app,value):
         with app.app_context():
-            orde=Order.get_order_by_school_number_and_status0(value)
+            orde=Order.get_order_by_school_number_and_status(value,"0")
             assert orde is not None
 
     def test_select1_by_school_number(self,app):
@@ -69,6 +69,7 @@ class TestOrder:
 
     def test_select_search_user(self,app):
         with app.app_context():
-            ordes,count=Order.search_user_without_page(commodity_id="%3%")
+            temp = 35
+            ordes,count=Order.search_user_without_page(commodity_id="%"+str(temp)+"%")
             assert len(ordes)==count
-            assert ordes[0]._id==1 and ordes[1]._id==2
+            assert ordes[0]._id==1
