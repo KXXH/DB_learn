@@ -428,7 +428,6 @@
         console.log('增加评论')
         ids = id.split("_")
         commodity_id = ids[ids.length - 1]
-        target_id = 
         content_id = '#content_'+ commodity_id
         content = $(content_id).val()
         send_data = { 'id': commodity_id, 'content': content }
@@ -441,6 +440,7 @@
             success: function (back) {
                 back = $.parseJSON(back);
                 if (back.code == 200) {
+                    $(content_id).val('')
                     show_comment_id = 'show_comment_btn_id_' + commodity_id
                     show_comment(show_comment_id);
                 } else {
