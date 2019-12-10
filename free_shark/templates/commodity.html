@@ -143,14 +143,14 @@
     <div class="col">
 
     </div>
-    <div class="col-10">
+    <div class="col-12">
         {% for commodity in commodities %}
         
         {{ set_var(loop.length) }}
-        {% if loop.index % 2 == 1 %}
+        {% if loop.index % 3 == 1 %}
         <div class="row">
         {% endif %}
-        <div class="col-6">
+        <div class="col-4">
             {% if commodity.status == 0 %}
                 <div class="card" style="margin-top: 1%;">
             {% else %}
@@ -243,7 +243,7 @@
                         <div class="col">
                             {% set buy_id = 'buy_btn_' + commodity.id|string %}
                             <button type="button" id={{ buy_id }} class="btn btn-primary" onclick="buy_commodity(this.id)">
-                                预约商品
+                                预约
                             </button>
                         </div>
                         {% endif %}
@@ -272,12 +272,12 @@
                 </div>
             </div>
         </div>
-        {% if loop.index % 2 == 0 %}
+        {% if loop.index % 3 == 0 %}
         </div>
         {% endif %}
         {% endfor %}
 
-        {% if get_var() % 2 == 1 %}
+        {% if get_var() % 3 != 0 %}
         </div>
         {% endif %}
         <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">

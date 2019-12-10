@@ -1,13 +1,4 @@
 {% extends "layout.html" %}
-
-{% block style %}
-<style>
-    a {
-        text-decoration: none;
-        color: black;
-    }
-</style>
-{% endblock %}
 {% block content %}
 <body onload="init()">
     <input type="hidden" value={{ page.current }} id="current">
@@ -49,14 +40,14 @@
         <div class="col">
 
         </div>
-        <div class="col-10">
+        <div class="col-12">
             {% for commodity in commodities %}
             {{ set_var(loop.length) }}
-            {% if loop.index % 2 == 1 %}
+            {% if loop.index % 3 == 1 %}
             <div class="row">
             {% endif %}
 
-            <div class="col-6">
+            <div class="col-4">
                 <div class="card" style="margin-top: 1%;">
                     {% set carouselId = 'carouselExampleIndicators'+commodity.id|string  %}
                     {% set carouselTarget = '#carouselExampleIndicators'+commodity.id|string  %}
@@ -234,11 +225,11 @@
                     </div>
                 </div>
             </div>
-            {% if loop.index % 2 == 0 %}
+            {% if loop.index % 3 == 0 %}
             </div>
             {% endif %}
             {% endfor %}
-            {% if get_var() % 2 == 1 %}
+            {% if get_var() % 3 != 2 %}
             </div>
             {% endif %}
 
