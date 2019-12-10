@@ -1,4 +1,5 @@
 from free_shark.db import get_db,get_db_with_dict_cursor
+from free_shark.models import user
 
 class Block:
     def __init__(self,id,user_id,reason,start_time,end_time):
@@ -35,6 +36,12 @@ class Block:
     @property
     def user_id(self):
         return self._user_id
+
+    @property
+    @block_id_not_none
+    def user(self):
+        c_user=user.User.get_user_by_id(self.user_id)
+        return c_user
 
     @user_id.setter
     @block_id_not_none

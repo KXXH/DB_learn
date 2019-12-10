@@ -14,6 +14,7 @@
                 {{ render_nav_item('admin.admin_user_view','用户管理') }}
                 {{ render_nav_item('admin.admin_block_view','封禁管理') }}
                 {% if not current_user.is_anonymous %}
+                {{ render_nav_item('auth.editUser','修改个人信息') }}
                 {{ render_nav_item('auth.logout','登出') }}
                 {% else %}
                 {{ render_nav_item('auth.login','登录') }}

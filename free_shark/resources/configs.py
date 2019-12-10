@@ -67,7 +67,8 @@ class Block_Search_Fields(Base_Response_Fields):
             "user_id":fields.Integer,
             "reason":fields.String,
             "start_time":fields.DateTime,
-            "end_time":fields.DateTime
+            "end_time":fields.DateTime,
+            "user":fields.Nested(User_Search_Fields().user_fields)
         }
         self.count=count
         self.data=data

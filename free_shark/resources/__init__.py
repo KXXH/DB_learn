@@ -16,6 +16,7 @@ api.add_resource(user_resource.UserRecoverResource,'/user/redoDelete')
 
 api.add_resource(block_resource.BlockSearchResource,'/block/search')
 api.add_resource(block_resource.QuickBlockResource,'/block/quickCreate')
+api.add_resource(block_resource.BlockAddResource,'/block/add')
 api.add_resource(block_resource.BlockDeleteResource,'/block/delete')
 
 @bp.route("/heartbeat",methods=["GET","POST"])
