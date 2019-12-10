@@ -7,7 +7,7 @@
         <small class="text-muted">你的邮箱是{{current_user.email}}吗？</small>
     </h1>
     <div class="col-md-6 "><button class="btn btn-block btn-primary" onclick="send_email()" id="yes_btn">是，发送激活邮件</button></div>
-    <div class="col-md-6 "><button class="btn btn-block btn-secondary">不是，前往修改</button></div>
+    <div class="col-md-6 "><button class="btn btn-block btn-secondary" onclick="window.location.href='/auth/editUser?target=email'">不是，前往修改</button></div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="modal">
         <div class="modal-dialog" role="document">

@@ -13,7 +13,7 @@ from free_shark import resources
 from free_shark import auth,db
 from flask_sqlalchemy import SQLAlchemy
 from free_shark import comController
-from free_shark.utils import admin_login_required,load_config_from_envvar
+from free_shark.utils import admin_login_required,load_config_from_envvar,set_default
 from free_shark.models.commodity import Commodity
 from free_shark.entity.Page import Page
 from free_shark.error_handlers import frobidden_handler
@@ -61,6 +61,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    debugFlag=app.config['DEBUG']
+
     db.init_app(app)
     
     app.register_blueprint(auth.bp)
@@ -72,11 +74,13 @@ def create_app(test_config=None):
     app.add_template_global(set_var, 'set_var')
     app.add_template_global(get_var, 'get_var')
 
+    app.jinja_env.globals['HEARTBEAT_FLAG']=not debugFlag
 
     from urllib.parse import urlencode
     from free_shark.utils import replace_dict
     app.jinja_env.filters['urlencode']=urlencode
     app.jinja_env.filters['replace_dict']=replace_dict
+    app.jinja_env.filters['set_default']=set_default
 
     app.register_error_handler(403,frobidden_handler)
 

@@ -80,7 +80,7 @@ def send_activation():
 @bp.route("/activation/<token>")
 def activation(token):
     c_user=user.User.get_user_by_token(token)
-    if c_user is None or c_user.status:
+    if c_user is None or not c_user.is_forbid:
         return redirect(url_for("auth.login"))
     else:
         login_user(c_user)  #需要加入next跳转

@@ -122,3 +122,7 @@ def check_email(email):
 def replace_dict(d,target,value):
     d[target]=value
     return d
+
+def set_default(d,key,value):
+    d.setdefault(key,value)
+    return d
