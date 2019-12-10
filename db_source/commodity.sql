@@ -11,7 +11,7 @@
  Target Server Version : 50645
  File Encoding         : 65001
 
- Date: 05/12/2019 17:23:16
+ Date: 10/12/2019 17:09:25
 */
 
 SET NAMES utf8mb4;
@@ -42,8 +42,8 @@ CREATE TABLE `commodity`  (
 -- ----------------------------
 -- Records of commodity
 -- ----------------------------
-INSERT INTO `commodity` VALUES (35, '小米手机', '手机', '2016141241188', 1599.00, '和我一起做米Boy', '/static/image/db794736173f11ea9823b0fc361748ec.jpg', '/static/image/db799552173f11ea9305b0fc361748ec.jpg', '/static/image/db7a3198173f11eab5cbb0fc361748ec.jpg', '', '', 0, '2019-12-05 17:16:02');
-INSERT INTO `commodity` VALUES (36, '牙刷', '生活必需品', '2016141241188', 10.00, '牙刷批发', '/static/image/f574a21c173f11ea9873b0fc361748ec.jpg', '/static/image/f574f036173f11eaaadeb0fc361748ec.jpg', '/static/image/f5753e4a173f11ea84d8b0fc361748ec.jpg', '', '', 0, '2019-12-05 17:16:45');
+INSERT INTO `commodity` VALUES (35, '小米手机', '手机', '2016141241188', 1599.00, '和我一起做米Boy', '/static/image/6d8f2a661b1b11ea98f0b0fc361748ec.jpg', '/static/image/6d8f78881b1b11ea9ea0b0fc361748ec.jpg', '/static/image/6d8fc6a61b1b11eabd95b0fc361748ec.jpg', '', '', 0, '2019-12-10 15:05:20');
+INSERT INTO `commodity` VALUES (36, '牙刷', '生活必需品', '2016141241188', 10.00, '牙刷批发', '/static/image/61e52a521b1b11ea92e8b0fc361748ec.jpg', '/static/image/61e578741b1b11eaa3d2b0fc361748ec.jpg', '/static/image/61e5c6a61b1b11eabfd9b0fc361748ec.jpg', '', '', 0, '2019-12-10 15:05:00');
 INSERT INTO `commodity` VALUES (37, '华为手机', '手机', '2016141225117', 3299.00, '爱我中华', '/static/image/52702d50174011eab11bb0fc361748ec.jpg', '/static/image/5270a274174011eab47cb0fc361748ec.jpg', '', '', '', 0, '2019-12-05 17:19:21');
 INSERT INTO `commodity` VALUES (38, '脸盆', '生活必需品', '2016141225117', 15.00, '应有尽有，满足你洗脸洗脚的需求', '/static/image/6c0274a8174011eaae4bb0fc361748ec.jpg', '/static/image/6c02c2ca174011ea8939b0fc361748ec.jpg', '', '', '', 0, '2019-12-05 17:20:04');
 INSERT INTO `commodity` VALUES (39, 'iphone', '手机', '2016141257442', 4288.00, '果粉看过来', '/static/image/b9e70d46174011ea813fb0fc361748ec.jpg', '/static/image/b9e75b5c174011eab6c2b0fc361748ec.jpg', '/static/image/b9e7d09e174011eaab98b0fc361748ec.jpg', '', '', 0, '2019-12-05 17:22:15');

@@ -11,7 +11,7 @@
  Target Server Version : 80018
  File Encoding         : 65001
 
- Date: 08/12/2019 16:21:51
+ Date: 09/12/2019 22:45:03
 */
 
 SET NAMES utf8mb4;
@@ -24,8 +24,9 @@ DROP TABLE IF EXISTS `comorder`;
 CREATE TABLE `comorder`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `commodity_id` int(11) NOT NULL,
+  `commodity_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `buyer_id` int(11) NOT NULL,
-  `seller_id` int(11) NOT NULL,
+  `school_number` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '0-表示未处理，1-表示已同意，2-表示不同意',
   `create_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
@@ -34,9 +35,9 @@ CREATE TABLE `comorder`  (
 -- ----------------------------
 -- Records of comorder
 -- ----------------------------
-INSERT INTO `comorder` VALUES (1, 1, 1, 2, '0', '2019-12-04 13:15:16');
-INSERT INTO `comorder` VALUES (2, 5, 2, 3, '0', '2019-12-03 13:15:33');
-INSERT INTO `comorder` VALUES (3, 1, 2, 3, '1', '2019-12-08 15:30:41');
-INSERT INTO `comorder` VALUES (4, 1, 2, 3, '1', '2019-12-08 15:31:03');
+INSERT INTO `comorder` VALUES (1, 35, '小米手机', 1, '2016141225117', '0', '2019-12-04 13:15:16');
+INSERT INTO `comorder` VALUES (2, 36, '牙刷', 1, '2016141225117', '0', '2019-12-03 13:15:33');
+INSERT INTO `comorder` VALUES (3, 37, '华为手机', 2, '2016141257442', '1', '2019-12-08 15:30:41');
+INSERT INTO `comorder` VALUES (4, 39, 'iphone', 3, '2016141241188', '1', '2019-12-08 15:31:03');
 
 SET FOREIGN_KEY_CHECKS = 1;
