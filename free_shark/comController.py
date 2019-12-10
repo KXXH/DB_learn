@@ -1,10 +1,13 @@
 from free_shark.models.commodity import Commodity
+from free_shark.models.comment import Comment
+from free_shark.models.user import User
 from free_shark.models.student import Student
-from flask import (Blueprint,flash,g,render_template,request,session,current_app,redirect,url_for,render_template_string,send_from_directory,Response)
+from flask import (abort,Blueprint,flash,g,render_template,request,session,current_app,redirect,url_for,render_template_string,send_from_directory,Response)
 from free_shark.entity.Page import Page
 from free_shark.util.json_help import make_json
 from werkzeug.utils import secure_filename
 from flask_uploads import UploadSet, IMAGES, configure_uploads, ALL
+from flask_principal import Permission, RoleNeed, UserNeed
 import requests
 import uuid
 import json
@@ -15,6 +18,11 @@ import re
 from flask_login import login_user,login_required,logout_user,current_user
 
 bp=Blueprint('commodity',__name__,url_prefix='/commodity')
+
+class AddCommentPermission(Permission):
+    def __init__(self,user_id):
+        super().__init__()
+        self.excludes = set([UserNeed(user_id)])
 
 @bp.route('/index',methods=['GET','POST'])
 def index():
@@ -257,5 +265,33 @@ def show_comment():
         data = request.get_data()
         data = str(data,'utf-8')
         id = int(data.split('=')[-1])
-        print(id)
-        return make_json(200,'success')
+        results = []
+        l = Comment.get_comment_by_commodity_id(id)
+        for i in l:
+            user = User.get_user_by_id(i.user_id)
+            j = {'username':user.username,'comment_content':i.comment_content}
+            results.append(j)
+        print(len(results))
+        return make_json(200,'success',results)
+
+
+@login_required
+@bp.route('/add_comment',methods= ['POST','GET'])
+def add_comment():
+    if request.method == 'POST':
+        # 设置权限，自己不能对自己的商品评论
+        add_comment_permission = AddCommentPermission(current_user.id)
+        if not add_comment_permission.can():
+            abort(401)
+        data = request.get_json()
+        comment = Comment()
+        comment.comment_content = data['content']
+        comment.commodity_id = int(data['id'])
+        comment.user_id = current_user.id
+        comment.username = current_user.username
+        comment.status = 0
+        if comment.add_comment() == 1:
+            return make_json(200,'success')
+        else:
+            return make_json(500,'fail')
+ 

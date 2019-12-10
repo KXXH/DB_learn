@@ -63,7 +63,7 @@
                                         <label class="custom-file-label" for="photo1" aria-describedby="photoAddon01">Choose
                                             file</label>
                                     </div>
-                                    <div class="input-group-append">
+                                    <div class="input-group-append" style="display: none;">
                                         <span class="input-group-text" id="photoAddon01">Upload</span>
                                     </div>
                                 </div>
@@ -73,7 +73,7 @@
                                         <label class="custom-file-label" for="photo2" aria-describedby="photoAddon02">Choose
                                             file</label>
                                     </div>
-                                    <div class="input-group-append">
+                                    <div class="input-group-append"  style="display: none;">
                                         <span class="input-group-text" id="photoAddon02">Upload</span>
                                     </div>
                                 </div>
@@ -83,7 +83,7 @@
                                         <label class="custom-file-label" for="photo3" aria-describedby="photoAddon03">Choose
                                             file</label>
                                     </div>
-                                    <div class="input-group-append">
+                                    <div class="input-group-append"  style="display: none;">
                                         <span class="input-group-text" id="photoAddon03">Upload</span>
                                     </div>
                                 </div>
@@ -93,7 +93,7 @@
                                         <label class="custom-file-label" for="photo4" aria-describedby="photoAddon04">Choose
                                             file</label>
                                     </div>
-                                    <div class="input-group-append">
+                                    <div class="input-group-append"  style="display: none;">
                                         <span class="input-group-text" id="photoAddon04">Upload</span>
                                     </div>
                                 </div>
@@ -103,7 +103,7 @@
                                         <label class="custom-file-label" for="photo5" aria-describedby="photoAddon05">Choose
                                             file</label>
                                     </div>
-                                    <div class="input-group-append">
+                                    <div class="input-group-append"  style="display: none;">
                                         <span class="input-group-text" id="photoAddon05">Upload</span>
                                     </div>
                                 </div>
@@ -231,32 +231,39 @@
                                 
                                 <textarea class="form-control" id={{ FormControlTextarea_id }} rows="5" readonly="readonly" style="margin-top: 2%;"></textarea>
                             </div>
+                            {% if current_user.is_authenticated %}
                             <p>
                                 {% set huifu_id = '#huifu-'+commodity.id|string %}
                                 {% set huifu_target_id = 'huifu-'+commodity.id|string %}
                                 <li class="d-inline ml-2"><a href={{ huifu_id }} data-toggle="collapse" class="text-primary">评论</a></li>
                             </p>
+                            {% endif %}
                         </div>
+                        {% if current_user.is_authenticated %}
                         <div class="col">
                             {% set buy_id = 'buy_btn_' + commodity.id|string %}
                             <button type="button" id={{ buy_id }} class="btn btn-primary" onclick="buy_commodity(this.id)">
                                 预约商品
                             </button>
                         </div>
-                    </div>   
+                        {% endif %}
+                    </div>
+                    {% if current_user.is_authenticated %}
                     <div id={{ huifu_target_id }} class="mt-4 collapse" style="margin-left:5%">
-                        <form method="post" th:action="">
+                        <div>
                             <div class="row">
+                                {% set comment_content_id = 'content_' + commodity.id|string %}
+                                {% set comment_btn_id = 'content_btn_' + commodity.id|string %}
                                 <div>
-                                    <input type="text" class="input-size" name="content" placeholder="评论" />
+                                    <input id={{ comment_content_id }} type="text" class="input-size" name="content" placeholder="评论" />
                                 </div>
                                 <div class="text-right" style="margin-left: 5%;">
-                                    <button type="submit" class="btn btn-primary btn-sm" onclick="#">&nbsp;&nbsp;评&nbsp;&nbsp;论&nbsp;&nbsp;</button>
+                                    <button id={{ comment_btn_id }} class="btn btn-primary btn-sm" onclick="add_comment(this.id);">&nbsp;&nbsp;评&nbsp;&nbsp;论&nbsp;&nbsp;</button>
                                 </div>
                             </div>
-                            
-                        </form>
+                        </div>
                     </div>
+                    {% endif %}
                     <div>
                         {% set target = '#uploadCommodity' + commodity.id|string %}
                         {% set target_id = 'uploadCommodity' + commodity.id|string %}
@@ -324,9 +331,13 @@
 {% block script_at_end %}
 <script>
     function show_comment(id) {
+        console.log("开始展示")
+
         ids = id.split("_")
         commodity_id = ids[ids.length - 1]
-        target_id = '#FormControlTextarea_'+ commodity_id
+        target_id = 'FormControlTextarea_'+ commodity_id
+        var ele = document.getElementById(target_id);
+        ele.value = "";
         console.log(commodity_id)
 
         $.post(
@@ -334,8 +345,14 @@
             { 'id': commodity_id },
             function (data) {
                 data = $.parseJSON(data);
+                console.log("收到了的数据："+data.entity.length)
                 if (data.code == 200) {
-                    $(target_id).val(data.msg);
+                    var string = "";
+                    for(var i = 0; i < data.entity.length; i++){
+                        var username = JSON.stringify(data.entity[i]['username']).replace(/"/g,'')
+                        var content = JSON.stringify(data.entity[i]['comment_content']).replace(/"/g, '')
+                        ele.value = ele.value+ username + ":" + content + "\n";
+                    }
                 } else {
                     console.log(data.msg);
                 }
@@ -405,6 +422,41 @@
                 }, 2000);
             }
         );
+    }
+
+    function add_comment(id){
+        console.log('增加评论')
+        ids = id.split("_")
+        commodity_id = ids[ids.length - 1]
+        target_id = 
+        content_id = '#content_'+ commodity_id
+        content = $(content_id).val()
+        send_data = { 'id': commodity_id, 'content': content }
+        console.log(send_data)
+        $.ajax({
+            type: "post",
+            url: '/commodity/add_comment',
+            data: JSON.stringify(send_data),
+            contentType: 'application/json; charset=UTF-8',
+            success: function (back) {
+                back = $.parseJSON(back);
+                if (back.code == 200) {
+                    show_comment_id = 'show_comment_btn_id_' + commodity_id
+                    show_comment(show_comment_id);
+                } else {
+                    console.log(back.msg);
+                }
+            },
+            error: function (xhr, type) {
+                $("#hintBody").text("这是你自己的商品！");
+
+                $("#hintModal").modal("show");
+                setTimeout(function () {
+                    $("#hintModal").modal("hide");
+                    location.reload();
+                }, 2000);
+            }
+        });
     }
 </script>
 {% endblock %}
