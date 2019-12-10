@@ -45,10 +45,11 @@ class QuickBlockResource(Resource):
     @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         d=self.parser.parse_args()
-        start_time=datetime.datetime.now()
+        start_time=datetime.datetime.now()-datetime.timedelta(seconds=5)
         end_time=start_time+datetime.timedelta(days=d['time'])
         try:
             block=Block.create_block(d['user_id'],d['reason'],start_time,end_time)
+            print(block)
             flash("用户#%d 已因为%s封禁 %d 天!" % (d['user_id'],d['reason'],d['time']),"warning")
         except:
             raise

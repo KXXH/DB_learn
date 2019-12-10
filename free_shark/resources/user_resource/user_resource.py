@@ -77,6 +77,7 @@ class UserResourceSearch(Resource):
         self.parser.add_argument("username",required=False)    #精准查询的行
         self.parser.add_argument("email",required=False)  #精准查询的内容
         self.parser.add_argument("id",required=False)  #精准查询的内容
+        self.parser.add_argument("mask",required=False,type=int)
         self.parser.add_argument("page_num",required=True,type=int)
         self.parser.add_argument("page_size",required=True,type=int)
     
@@ -86,7 +87,7 @@ class UserResourceSearch(Resource):
     def post(self):
         d=self.parser.parse_args()
         print(d)
-        users,count=User.search_user(**d)
+        users,count=User.search(**d)
         return User_Search_Fields(users,count)
 
     def get(self):
@@ -149,7 +150,7 @@ class UserResourceUpdate(Resource):
             raise UserNotFound("id",id)
         if d.get("username",None) is not None:
             user.username=d.get("username",None)
-        if d.get("password",None) is not None:
+        if d.get("password",None) is not None and len(d['password'])>0:
             user.password=d.get("password","")
         if d.get("email",None) is not None:
             user.email=d.get("email",None)
@@ -158,7 +159,10 @@ class UserResourceUpdate(Resource):
         permission=UserUpdateAdminPermission(id)
         if permission.can():
             if d.get("status",None) is not None:
-                user.status=1 if d.get("status",None)=="on" else 0
+                if d['status']=="on":
+                    user.set_forbid(False)
+                elif d['status']=="off":
+                    user.set_forbid(True)
             if d.get("type",None) is not None:
                 user.type=0 if d.get("type",None)=='on' else 1
 

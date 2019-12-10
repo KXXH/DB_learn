@@ -1,11 +1,33 @@
 {% extends 'admin/admin_layout.html' %}
 
 {% block style %}
-{{super()}}
+    <style>
+        body{
+            padding-top: 3.5rem;
+        }
+    </style>
 <link rel="stylesheet" href="/static/css/tempusdominus-bootstrap-4.min.css">
 {% endblock %}
+{% block nav_bar %}
+{{super()}}
+{% set d1=request.args.to_dict()|set_default("page_num",1)|set_default("page_size",20)|set_default("method","search") %}
+{% set d2=d1.copy() %}
+<ul class="nav nav-tabs d-flex justify-content-center mb-4 bg-light" id="tab_nav">
+    
+    <li class="nav-item">
+        <a class="nav-link {% if 'mask' not in d1 or d1['mask']|int>=0 %}active{% endif %}" href="/admin/user?{{d1|replace_dict('mask',1)|urlencode}}">普通用户</a>
+    </li>
 
+    <li class="nav-item">
+        <a class="nav-link {% if d2.get('mask',1)|int<0 %}active{% endif %}" href="/admin/user?{{d1|replace_dict('mask',-1)|urlencode}}">
+            <img src="/static/icons/trash.svg" title="trash">
+            回收站
+        </a>
+    </li>
+</ul>
+{% endblock %}
 {% block content %}
+{% set d1=request.args.to_dict()|set_default("page_num",1)|set_default("page_size",20)|set_default("method","search")|set_default("mask",1) %}
 <div class="input-group mb-3">
     <div class="input-group-prepend">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="search_target">选择搜索类型</button>
@@ -18,10 +40,10 @@
     </div>
     <input type="text" class="form-control" aria-label="Text input with dropdown button" id="search_content">
     <div class="input-group-append">
-        <button class="btn btn-secondary" onclick="searchUser()">搜索</button>
+        <button class="btn btn-outline-secondary" onclick="searchUser()">搜索</button>
     </div>
 </div>
-<table class="table table-hover">
+<table class="table table-hover table-striped">
     <thead>
         <tr>
             <th scope="col">id</th>
@@ -32,7 +54,7 @@
             <th scope="col">操作</th>
         </tr>
     </thead>
-    <tbody class="">
+    <tbody>
         {% for user in ans %}           
         <tr>
             <th scope="row">{{user.id}}</th>
@@ -45,10 +67,12 @@
             </td>
             <td >{{user.create_time}}</td>
             <td>
+                {% if d1['mask']|int>0 %}
                 <button type="button" class="btn btn-primary btn-sm" onclick="updateUser({{user.id}})">修改</button>
                 <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-toggle="dropdown" id="blockBtn{{user.id}}">封禁</button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser({{user.id}})">删除</button>
-                <form class="dropdown-menu p-4" aria-labelledby="blockBtn{{user.id}}" action="\api\block\quickCreate" data-flip="false" id="blockForm{{user.id}}" method="POST">
+                <div class="dropdown-menu p-4" aria-labelledby="blockBtn{{user.id}}" data-flip="false">
+                    <form action="\api\block\quickCreate" id="blockForm{{user.id}}" method="POST">
                     <h3>快速封禁</h3>
                         <input type="text" style="display: none;" value="{{user.id}}" name="user_id">
                         <div class="form-group">
@@ -60,8 +84,15 @@
                             <input type="number" class="form-control" id="blockTime{{user.id}}" placeholder="时长(天)" name="time" required>
                         </div>
                         <div class="mb-2"><a href="block?method=search&user_id={{user.id}}">查看该用户封禁详情</a></div>
-                        <button type="submit" class="btn btn-warning" onclick="$('#blockForm{{user.id}}').ajaxSubmit(onSuccess)"  {% if user.is_blocked %}disabled{% endif %}>{% if user.is_blocked %}已封禁{% else %}立即封禁{% endif %}</button>
-                </form>
+                    </form>
+                    <button class="btn btn-warning" onclick="$('#blockForm{{user.id}}').ajaxSubmit(onSuccess)"  
+                            {% if user.is_blocked %}disabled{% endif %}
+                        >{% if user.is_blocked %}封禁中{% else %}立即封禁{% endif %}
+                        </button>
+                </div>
+                {% else %}
+                <button type="button" class="btn btn-info btn-sm" onclick="redo({{user.id}})">恢复用户</button>
+                {% endif %}
             </td> 
             
         </tr>
@@ -115,6 +146,7 @@
 <script src="/static/js/moment.js"></script>
 <script src="/static/js/tempusdominus-bootstrap-4.min.js"></script>
 <script>
+    $("body").removeClass("bg-light").addClass("bg-white")
 
     function check_callback(){
         return;
@@ -134,7 +166,7 @@
             $("#update_form input[name='username']").val(data.data[0].username);
             $("#update_form input[name='id']").val(data.data[0].id);
             $("#update_form input[name='email']").val(data.data[0].email);
-            if(data.data[0].status!=0){
+            if(data.data[0].status!=2){
                 $("#update_form input[name='status']").attr("checked","true");
             }else{
                 $("#update_form input[name='status']").removeAttr("checked");
@@ -198,7 +230,6 @@
     }
     var usernameEditField=InputField("#update_form input[name='username']",checkUsername_1);
     var emailEditField=InputField("#update_form input[name='email']",checkEmail);
-
 </script>
 
 {% endblock %} 

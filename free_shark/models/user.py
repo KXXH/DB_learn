@@ -21,13 +21,16 @@ class User(UserMixin):
         self._email=kwargs.get('email',None)
         self._activation=kwargs.get('activation','act')
         self._type=kwargs.get('type',1)
-        self._status=kwargs.get('status',0)
+        self._status=kwargs.get('status',2)
         self._create_time=kwargs.get('create_time',None)
         self._token=kwargs.get('token',None)
         self._activite_flag=False
         self._block_list=None
         self._active_block_list=None
     
+    def __repr__(self):
+        return ("Type: User. username: %s, role: %s" % (self.username,self.role))
+
     def is_authenticated(self):
         return self._activite_flag
 
@@ -83,10 +86,10 @@ class User(UserMixin):
         ans=[]
         if self.is_blocked:
             ans.append("blocked")
-            return ans
+            #return ans
         if self.is_forbid:
             ans.append("forbid")
-            return ans
+            #return ans
         if self.type==1:
             ans.append("user")
         elif self.type==0:
@@ -109,7 +112,7 @@ class User(UserMixin):
     def is_forbid(self):
         if self.is_admin:
             return False
-        return self.status==0
+        return self.status==2
 
     @property
     def username(self):
@@ -299,6 +302,12 @@ class User(UserMixin):
             self._active_block_list=Block.get_active_block_list_by_user_id(self.id)
         return self._active_block_list
 
+    def set_forbid(self,value):
+        if value:
+            self.status=2
+        else:
+            self.status=1
+
     @staticmethod
     def create_user_from_rows(row):
         user=User(id=row[0],username=row[1],password=row[2],salt=row[3],email=row[4],activation=row[5],type=row[6],status=row[7],create_time=row[8],token=row[9])
@@ -327,7 +336,7 @@ class User(UserMixin):
         return User.search_user(*args,**kwargs)
 
     @staticmethod
-    def search_user_without_page(id="%%",username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%"):
+    def search_user_without_page(id="%%",username="%%",email="%%",activation="%%",type="%%",status="%%",create_time="%%",mask=1):
         sql="""
         SELECT * FROM user WHERE 
             id LIKE %s AND
@@ -336,9 +345,14 @@ class User(UserMixin):
             activation LIKE %s AND
             type LIKE %s AND
             status LIKE %s AND
-            create_time LIKE %s
-            AND status>=0
+            create_time LIKE %s 
             """
+        if isinstance(mask,str):
+            mask=int(mask)
+        if mask>=0:
+            sql+="AND status>=0"
+        else:
+            sql+="AND status<0"
         db=get_db_with_dict_cursor()
         cursor=db.cursor()
         cursor.execute(sql,(id,username,email,activation,type,status,create_time))

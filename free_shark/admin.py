@@ -38,7 +38,7 @@ class AdminView(MethodView):
             page_size=int(request.args.get("page_size"))
         if not method:
             ans,count=target.search(page_size=page_size,page_num=page_num)
-            
+            print(ans)
             return self.render_template(ans=ans,count=count,page_num=page_num,page_size=page_size)
         elif method=='search':
             del d['method']

@@ -78,7 +78,7 @@ class SendActivationEmail(Resource):
         url="http://localhost:5000"+url_for("auth.activation",token=token)
         msg=Message(
             token,
-            recipients=["283028294@qq.com"],
+            recipients=[d['email']],
             )
         msg.subject="激活确认邮件"
         msg.html=render_template_string("<a href='{{url}}'>点此激活</a>",url=url)
