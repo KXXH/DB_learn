@@ -292,15 +292,14 @@ class User(UserMixin):
             
     @property
     def block_list(self):
-        if self._block_list is None:
-            self._block_list=Block.get_block_list_by_user_id(self.id)
+        self._block_list=Block.get_block_list_by_user_id(self.id)
         return self._block_list
 
     @property
     def active_block_list(self):
-        if self._active_block_list is None:
-            self._active_block_list=Block.get_active_block_list_by_user_id(self.id)
+        self._active_block_list=Block.get_active_block_list_by_user_id(self.id)
         return self._active_block_list
+
 
     def set_forbid(self,value):
         if value:

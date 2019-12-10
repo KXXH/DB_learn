@@ -3,6 +3,7 @@
 {% block style %}
 {{super()}}
 <link rel="stylesheet" href="/static/css/tempusdominus-bootstrap-4.min.css">
+
 {% endblock %}
 
 {% block content %}
@@ -22,11 +23,53 @@
         <button class="btn btn-outline-secondary" onclick="searchBlock()">搜索</button>
     </div>
 </div>
+<p>
+    <a class="btn btn-primary btn-block" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+        增加封禁
+    </a>
+</p>
+<div class="collapse" id="collapseExample">
+    <div class="card card-body">
+        <form action="/api/block/add" method="POST" id="addBlockForm">
+            <div class="form-group form-row">
+                <div class="input-group col">
+                    <input type="text" class="form-control" name="user_id" id="user_id" placeholder="用户id" required>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="changeTarget()" type="button">切换id/用户名</button>
+                    </div>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" id="reasonInput" placeholder="理由" name="reason" required>
+                </div>
+            </div>
+            <div class="form-group form-row">
+                <div class="col">
+                    <div class="input-group date" id="datetimepicker_start" data-target-input="nearest">
+                        <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker_start" placeholder="开始时间" onchange="checkEndTime()" name="start_time" required/>
+                        <div class="input-group-append" data-target="#datetimepicker_start" data-toggle="datetimepicker">
+                            <div class="input-group-text"><img src="/static/icons/calendar.svg" title="calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group date" id="datetimepicker_end" data-target-input="nearest">
+                        <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker_end" placeholder="结束时间" onchange="checkStartTime()" name="end_time" required/>
+                        <div class="input-group-append" data-target="#datetimepicker_end" data-toggle="datetimepicker">
+                            <div class="input-group-text"><img src="/static/icons/calendar.svg" title="calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-block btn-warning" type="button" onclick="$('#addBlockForm').ajaxSubmit(onSuccess)">确定</button>
+        </form>
+        
+    </div>
+</div>
 <table class="table table-hover">
     <thead>
         <tr>
             <th scope="col">id</th>
-            <th scope="col">用户id</th>
+            <th scope="col">用户名</th>
             <th scope="col">理由</th>
             <th scope="col">开始时间</th>
             <th scope="col">结束时间</th>
@@ -37,7 +80,7 @@
         {% for item in ans %}           
         <tr>
             <th scope="row">{{item.id}}</th>
-            <td>{{item.user_id}}</th>
+            <td>{{item.user.username}}</th>
             <td>{{item.reason}}</th> 
             <td >{{item.start_time}}</td>
             <td>{{item.end_time}}</td> 
@@ -54,7 +97,51 @@
 {% block script_at_end %}
 
 {{super()}}
+<script src="/static/js/moment.js"></script>
+<script src="/static/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script type="text/javascript">
+    $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
+        icons: {
+            time: 'far fa-clock',
+            date: 'far fa-calendar',
+            up: 'fas fa-chevron-up',
+            down: 'fas fa-chevron-down',
+            previous: 'fas fa-chevron-left',
+            next: 'fas fa-chevron-right',
+            today: 'far fa-calendar-check-o',
+            clear: 'far fa-trash',
+            close: 'far fa-times'
+        },
+    format:"YYYY-MM-DD hh:mm:ss" });
+    $(function () {
+        $('#datetimepicker_start').datetimepicker('useCurrent',false);
+        $('#datetimepicker_start').datetimepicker('minDate',moment())
+        $('#datetimepicker_end').datetimepicker('useCurrent',false);
+        $('#datetimepicker_end').datetimepicker('minDate',moment())
+    });
+    $("#datetimepicker_start").on('change.datetimepicker',onStartTimeChange)
+    $("#datetimepicker_end").on('change.datetimepicker',onEndTimeChange)
+    function onStartTimeChange(e){
+        var new_date=e.date;
+        $('#datetimepicker_end').datetimepicker('minDate',new_date);
+    }
+    function onEndTimeChange(e){
+        var new_date=e.date;
+        $('#datetimepicker_start').datetimepicker('maxDate',new_date);
+    }
+</script>
 <script>
+    function changeTarget(){
+        var target=$('#user_id').prop('placeholder');
+        if(target=="用户名"){
+            $('#user_id').prop('placeholder','用户id');
+            $('#user_id').prop('name','user_id');
+        }else{
+            $('#user_id').prop('placeholder','用户名');
+            $('#user_id').prop('name','username');
+        }
+    }
     function removeBlock(id){
         var url="/api/block/delete";
         var postData={
@@ -72,6 +159,9 @@
             page_size:20
         }
         var content=$("#search_content").val();
+        if(content.length==0){
+            content="%%";
+        }
         switch(content){
             case "用户名":
                 postData['username']=content;

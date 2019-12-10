@@ -126,3 +126,7 @@ def replace_dict(d,target,value):
 def set_default(d,key,value):
     d.setdefault(key,value)
     return d
+
+from datetime import datetime
+def date_parser(str):
+    return datetime.strptime(str,"%Y-%m-%d %H:%M:%S")

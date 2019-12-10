@@ -15,12 +15,15 @@
 <ul class="nav nav-tabs d-flex justify-content-center mb-4 bg-light" id="tab_nav">
     
     <li class="nav-item">
-        <a class="nav-link {% if 'mask' not in d1 or d1['mask']|int>=0 %}active{% endif %}" href="/admin/user?{{d1|replace_dict('mask',1)|urlencode}}">普通用户</a>
+        <a class="nav-link {% if 'mask' not in d1 or d1['mask']|int>=0 %}active{% endif %}" href="/admin/user?{{d1|replace_dict('mask',1)|urlencode}}">
+            <i class="fas fa-user-tie"></i>
+            普通用户
+        </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link {% if d2.get('mask',1)|int<0 %}active{% endif %}" href="/admin/user?{{d1|replace_dict('mask',-1)|urlencode}}">
-            <img src="/static/icons/trash.svg" title="trash">
+            <i class="fas fa-trash"></i>
             回收站
         </a>
     </li>
@@ -167,14 +170,14 @@
             $("#update_form input[name='id']").val(data.data[0].id);
             $("#update_form input[name='email']").val(data.data[0].email);
             if(data.data[0].status!=2){
-                $("#update_form input[name='status']").attr("checked","true");
+                $("#update_form input[name='status']").prop("checked",true);
             }else{
-                $("#update_form input[name='status']").removeAttr("checked");
+                $("#update_form input[name='status']").prop("checked",false);
             }
             if(!data.data[0].type){
-                $("#update_form input[name='type']").attr("checked","true");
+                $("#update_form input[name='type']").prop("checked",true);
             }else{
-                $("#update_form input[name='type']").removeAttr("checked");
+                $("#update_form input[name='type']").prop("checked",false);
             }
             $("#update_modal").modal('show');
         });
@@ -208,6 +211,9 @@
     function searchUser(){
         var target=$("#search_target").text();
         var content=$("#search_content").val();
+        if(content.length==0){
+            content="%%";
+        }
         var postData={
             page_num:1,
             page_size:20

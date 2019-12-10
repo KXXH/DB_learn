@@ -43,17 +43,17 @@ def login():
 @bp.route("/editUser")
 def editUser():
     targets=request.args.get("target")
-    usernameInputEnable=True
-    passwordInputEnable=True
-    emailInputEnable=True
+    usernameInputEnable=False
+    passwordInputEnable=False
+    emailInputEnable=False
     if targets is not None:
         targets=targets.split(",")
-        if "username" not in targets:
-            usernameInputEnable=False
-        if "password" not in targets:
-            passwordInputEnable=False
-        if "email" not in targets:
-            emailInputEnable=False
+        if "username" in targets:
+            usernameInputEnable=True
+        if "password" in targets:
+            passwordInputEnable=True
+        if "email" in targets:
+            emailInputEnable=True
     return render_template("edit_userinfo.html",
         usernameInputEnable=usernameInputEnable,
         passwordInputEnable=passwordInputEnable,
@@ -81,6 +81,7 @@ def send_activation():
 @bp.route("/activation/<token>")
 def activation(token):
     c_user=user.User.get_user_by_token(token)
+    print(c_user)
     if c_user is None or not c_user.is_forbid:
         return redirect(url_for("auth.login"))
     else:
@@ -90,6 +91,25 @@ def activation(token):
                                 identity=Identity(c_user.id))
     return render_template("activation_success.html")
 
+
+@bp.route('/test',methods=("GET","POST"))
+def test():
+    form=student_form.StudentForm()
+    data ={}
+    if form.validate_on_submit():
+        print("form_data=",form.data)
+        stu=student.Student.get_student_real_name(form.data['real_name'])
+        stu.update_college=form.data['college']
+        data = {
+        "real_name": stu._real_name,
+        "college": stu._college,
+        "user_id": stu._user_id,
+        "school_number": stu._school_number,
+        "banji": stu._banji,
+        "contact": stu._contact
+        }
+        #return "已更新！！！！！"
+    return render_template("testStudent.html",form=form,data=data)
 
 @bp.route("/logout")
 @login_required

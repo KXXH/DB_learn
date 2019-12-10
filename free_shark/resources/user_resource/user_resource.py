@@ -120,8 +120,6 @@ class UserResourceDelete(Resource):
     def get(self):
         return self.post()
 
-
-
 class UserResourceUpdate(Resource):
     """修改用户"""
 
@@ -136,7 +134,7 @@ class UserResourceUpdate(Resource):
         self.parser.add_argument("status",required=False)
         self.parser.add_argument("type",required=False)
     
-    @drop_value_from_request()
+    @drop_value_from_request("")
     @marshal_with(Base_Response_Fields().resource_fields)
     def post(self):
         
