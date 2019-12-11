@@ -10,7 +10,7 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav mr-auto">
                 {% from 'bootstrap/nav.html' import render_nav_item %}
-                {{ render_nav_item('commodity.index','首页') }}
+                {{ render_nav_item('admin.index_view','首页') }}
                 {{ render_nav_item('admin.admin_user_view','用户管理') }}
                 {{ render_nav_item('admin.admin_block_view','封禁管理') }}
                 {% if not current_user.is_anonymous %}

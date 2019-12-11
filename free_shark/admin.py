@@ -65,5 +65,10 @@ class BlockAdminView(AdminView):
     def get_target(self):
         return Block
 
+class IndexView(MethodView):
+    def get(self):
+        return render_template("admin/index.html")
+
 bp.add_url_rule('/user',view_func=UserAdminView.as_view("admin_user_view"))
 bp.add_url_rule('/block',view_func=BlockAdminView.as_view("admin_block_view"))
+bp.add_url_rule('/',view_func=IndexView.as_view("index_view"))
