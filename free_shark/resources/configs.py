@@ -81,3 +81,31 @@ class Block_Search_Fields(Base_Response_Fields):
         d['count']=fields.Integer
         d['username']=fields.String
         return d
+
+class Date(fields.Raw):
+    def format(self,value):
+        return value.strftime("%Y-%m-%d")
+
+class Block_Stat_Fields(Base_Response_Fields):
+    def __init__(self, data=None,**kwargs):
+        super().__init__(**kwargs)
+        self.block_stat_fields={
+            "count":fields.Integer,
+            "date":Date
+        }
+        self.data=data
+    
+    @property
+    def resource_fields(self):
+        d=super().resource_fields.copy()
+        d['data']=fields.List(fields.Nested(self.block_stat_fields))
+        return d
+
+
+
+class Block_During_Stat_Fields(Block_Stat_Fields):
+    def __init__(self, data=None, **kwargs):
+        super().__init__(data=data, **kwargs)
+        del self.block_stat_fields["date"]
+        self.block_stat_fields["start_time"]=Date
+        self.block_stat_fields["end_time"]=Date

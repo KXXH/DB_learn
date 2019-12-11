@@ -26,7 +26,7 @@ def login():
             if c_user.is_forbid:
                 flash("你还没有激活账户,请快去<a href='/auth/send_activation'>激活</a>!","warning")
             if c_user.is_admin:
-                flash("尊敬的管理员, 请前往<a href='/admin/user'>页面</a>管理系统!","success")
+                flash("尊敬的管理员, 请前往<a href='/admin'>页面</a>管理系统!","success")
             identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(c_user.id))
             next = request.args.get('next')
