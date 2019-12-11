@@ -19,3 +19,4 @@ free_shark/db_config.cfg
 tests/.cache/v/cache/lastfailed
 tests/test_commoditymodel.py
 /free_shark/mail_config.cfg
+tests/mail_config.cfg

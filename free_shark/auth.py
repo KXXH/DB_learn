@@ -10,6 +10,8 @@ from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,I
 from flask_login import login_user,login_required,logout_user,current_user
 from free_shark.resources.user_resource.user_register_resource import SendActivationEmailPermission
 from flask import abort
+from flask_mail import Message
+from free_shark.utils import mail
 
 bp=Blueprint('auth',__name__,url_prefix='/auth')
 
@@ -120,10 +122,11 @@ def logout():
                         identity=AnonymousIdentity())
     return redirect("/hello")
 
+@login_required
 @bp.route('/indexorder',methods=("GET","POST"))
 def indexorder():
     if request.method == 'GET':
-        user_id = request.args.get('current_user_id') or None
+        user_id = current_user.id
         print(user_id)
         if user_id is not None:
             stu=student.Student.get_student_id(user_id)
@@ -137,18 +140,19 @@ def indexorder():
             return render_template("comorder.html")
         else:
             abort(404)
-        
+@login_required    
 @bp.route('/searchorder',methods=("GET","POST"))
 def searchorder():
     if request.method == 'GET':
         commodity_name = request.args.get('commodity_name') or None
         order_id = request.args.get('order_id') or None
-        user_id = request.args.get('current_user_id')
+        user_id = current_user.id
         print(commodity_name)
         print(order_id)
         print(user_id)
         stu=student.Student.get_student_id(user_id)
         print(stu._school_number)
+        user_school_number=stu._school_number
         if commodity_name is None and order_id is None:
             ordes,count = order.Order.get_order_by_id_commodity(school_number=str(stu._school_number))
         elif commodity_name is None:
@@ -161,39 +165,64 @@ def searchorder():
         print(ordes)
         print(count)
         # 设置分页
-        return render_template("comorder.html",ordes=ordes)
+        return render_template("comorder.html",ordes=ordes,user_school_number=user_school_number)
 
+@login_required
 @bp.route('/search_order_status',methods=("GET","POST"))
 def search_order_status():
     if request.method == 'GET':
-        user_id = request.args.get('current_user_id') or None
+        user_id = current_user.id
         print(user_id)
         if user_id is not None:
             stu=student.Student.get_student_id(user_id)
-            print(stu._school_number)
+            user_school_number=stu._school_number
             ordes,count=order.Order.get_order_by_school_number_and_status(stu._school_number,"0")
             print(ordes)
             print(count)
-            return render_template("comorder.html",ordes=ordes)
+            print(stu._school_number)
+            return render_template("comorder.html",ordes=ordes,user_school_number=user_school_number)
         elif user_id is None:
             return render_template("comorder.html")
         else:
             abort(404)
 
+@login_required
 @bp.route('/update',methods=("GET","POST"))
 def update():
     if request.method == 'GET':
         id = request.args.get('id') or None
+        user_id = current_user.id
         new_status = request.args.get('new_status') or None
-        
-        if id is not None:
+        if id is not None and user_id is not None:
             print(id)
             print(new_status)
+            stu=student.Student.get_student_id(user_id)
             orde=order.Order.get_order_by_id(id)
             status=orde.update_status=new_status
+            buyer = student.Student.get_student_by_school_number(orde._buyer_id)
             print(status)
-            #print(orde)
+            msg = Message('闲鲨交易通知',recipients=[buyer._contact])
+            if new_status=='1':
+                orde_id=str(orde._id)
+                contact=str(stu._contact)
+                msg.html = render_template_string("<h1>卖家已经同意出售：您预约的%s号商品,卖家联系方式是'%s'<h1/>" % (orde_id,contact))
+            else:
+                orde_id=str(orde._id)
+                contact=str(stu._contact)
+                msg.html = render_template_string("<h1>非常抱歉，卖家不同意出售您预约的%s号商品<h1/>" % (orde_id))
+            mail.send(msg)
+            return render_template("comorder.html")
+        else:
+            abort(404)
+
+@login_required
+@bp.route('/delete_order',methods=("GET","POST"))
+def delete_order():
+    if request.method == 'GET':
+        id = request.args.get('id') or None
+        if id is not None:
+            orde=order.Order.get_order_by_id(id)
+            orde.delete_order()
             return render_template("comorder.html")
         elif id is None:
             abort(404)
-            

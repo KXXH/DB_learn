@@ -5,7 +5,7 @@
     <div class="col">
 
     </div>
-    <div class="col-10">
+    <div class="col-15">
         <div class="row">
             {% if current_user.is_authenticated %}
             <div class="input-group flex-nowrap col-4">
@@ -22,7 +22,7 @@
                 <button class="btn btn-primary" onclick="search()">搜索</button>
             </div>
             <div class="col-2">
-                <button class="btn btn-primary" onclick="search_status0()">查看未读订单</button>
+                <button class="btn btn-primary" onclick="search_status0()">未读订单</button>
             </div>
             {% endif %}
         </div> 
@@ -65,11 +65,20 @@
                 </td>
                 <td>{{orde._create_time}}</td>
                 <td>
-                    {% if orde._status=="0" %}
+                    {% if orde._status=="0"  %}
+                    {% if orde._school_number==user_school_number %}
                     <button type="button" class="btn btn-primary btn-sm" onclick="update_status_to1({{orde._id}})">同意</button>
                     <button type="button" class="btn btn-primary btn-sm" onclick="update_status_to2({{orde._id}})">不同意</button>
+                    {% endif %}
                     {% endif %}     
                 </td> 
+                <td>
+                        {% if orde._status=="0" %}
+                        {% if orde._buyer_id==user_school_number %}
+                        <button type="button" class="btn btn-danger btn-sm" onclick="delete_order({{orde._id}})">取消订单</button>
+                        {% endif %}
+                        {% endif %}
+                    </td> 
             </tr>
             {% endfor %}
         </tbody>
@@ -106,25 +115,23 @@
 {% endblock %}
 {% block script_at_end %}
 <script>
-var current_user_id = {{current_user.id}}
 function init(){
-        window.location = "/auth/indexorder?current_user_id=" + current_user_id;
+        window.location = "/auth/indexorder";
         //console.log(ordes);
         //show_table(ordes)           
     }
 function search(){
         window.location = "/auth/searchorder?order_id=" + $("#order_id").val()
-                            +"&commodity_name=" + $("#commodity_name").val()
-                            +"&current_user_id=" + current_user_id;
+                            +"&commodity_name=" + $("#commodity_name").val();
                             
     }
 
 function search_status0(){
-        window.location = "/auth/search_order_status?current_user_id=" + current_user_id;
+        window.location = "/auth/search_order_status";
                             
     }
-function delete_order(){
-        
+function delete_order(id){
+        window.location = "/auth/delete_order?id=" + id;
     }
 
 function update_status_to1(id){

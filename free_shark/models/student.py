@@ -92,6 +92,23 @@ class Student:
         return stu
         db.close()
 
+    @staticmethod
+    def get_student_by_school_number(school_number):
+        db = get_db()
+        cursor = db.cursor()
+        try:
+            cursor.execute('SELECT* FROM student WHERE school_number = %s',str(school_number))
+            results = cursor.fetchone()
+            if results is None:
+                return None
+            stu=Student.create_stu_from_rows(results)
+        except Exception as e:
+            print ("Error: unable to fetch data")
+            print (e)
+            raise e
+        return stu
+        db.close()
+
     @property
     def update_college(self):
         return self._college
