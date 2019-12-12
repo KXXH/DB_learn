@@ -118,7 +118,7 @@ class Commodity:
         self._create_time = new_create_time
 
     @status.setter
-    def create_time(self,new_status):
+    def status(self,new_status):
         self._status = new_status
 
     

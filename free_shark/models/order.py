@@ -116,17 +116,17 @@ class Order:
         db.close()
 
     @property
-    def update_status(self):
+    def status(self):
         return self._status
 
-    @update_status.setter
-    def update_status(self,new_val):
+    @status.setter
+    def status(self,new_val):
         self._status=new_val
         db = get_db()
         # 使用cursor()方法获取操作游标 
         cursor = db.cursor()
         # 创建时间
-        sql = "UPDATE comorder SET status=%s WHERE id=%s"
+        sql = "UPDATE comorder SET status=%s WHERE id=%d"
         try:
             # 执行sql语句
             cursor.execute(sql,(self._status,self._id))
@@ -135,6 +135,7 @@ class Order:
         except:
             # 如果发生错误则回滚
             db.rollback()
+            raise
             # 关闭数据库连接
         db.close() 
 

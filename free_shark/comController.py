@@ -1,6 +1,7 @@
 from free_shark.models.commodity import Commodity
 from free_shark.models.comment import Comment
 from free_shark.models.user import User
+from free_shark.models.order import Order
 from free_shark.models.student import Student
 from flask import (abort,Blueprint,flash,g,render_template,request,session,current_app,redirect,url_for,render_template_string,send_from_directory,Response)
 from free_shark.entity.Page import Page
@@ -253,15 +254,20 @@ def wanna_buy():
             return make_json(500,'这是您自己的商品')
         else:
             # 生成订单
-
+            now = time.strftime(
+                '%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            r = {"commodity_id":id,"commodity_name":commodity.commodity_name,"buyer_id":student._school_number,"school_number":commodity.owner_student_id,"status":0,"create_time":now}
+            print(r)
+            if Order.add_order(**r):
+                commodity.status = 1
+                if commodity.update_commodity() == 1:
+                    return make_json(200, '预约成功')
+                else:
+                    return make_json(500, '预约失败')
             # 然后要把商品的状态改为1，表示已经被预约不再显示
 
             # 交易完成之后就把商品状态改为2
-            commodity.status = 1
-            if commodity.update_commodity()== 1:
-                return make_json(200,'预约成功')
-            else:
-                return make_json(500,'预约失败')
+            
 
 @bp.route('/show_comment',methods = ['POST','GET'])
 def show_comment():
