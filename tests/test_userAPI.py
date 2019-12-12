@@ -24,7 +24,7 @@ def admin_login(app):
         yield client,app
         logout(client)
 
-@pytest.fixture(params=[("test2","123456")])
+@pytest.fixture(params=[("test1","123456")])
 def user_login(app,request):
     with app.test_client(request) as client:
         rv,client=login(client,request.param[0],request.param[1])
