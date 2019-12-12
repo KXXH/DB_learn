@@ -126,7 +126,7 @@ class Order:
         # 使用cursor()方法获取操作游标 
         cursor = db.cursor()
         # 创建时间
-        sql = "UPDATE comorder SET status=%s WHERE id=%d"
+        sql = "UPDATE comorder SET status=%s WHERE id=%s"
         try:
             # 执行sql语句
             cursor.execute(sql,(self._status,self._id))

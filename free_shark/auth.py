@@ -6,7 +6,7 @@ from free_shark.forms import login_form,student_form
 from free_shark.models import user
 from free_shark.models import student
 from free_shark.models import order
-from free_shark.models import commodity
+from free_shark.models.commodity import Commodity
 from flask_principal import identity_loaded,UserNeed,RoleNeed,identity_changed,Identity,AnonymousIdentity
 from flask_login import login_user,login_required,logout_user,current_user
 from free_shark.resources.user_resource.user_register_resource import SendActivationEmailPermission
@@ -199,21 +199,26 @@ def update():
             print(new_status)
             stu=student.Student.get_student_id(user_id)
             orde=order.Order.get_order_by_id(id)
-            status=orde.update_status=new_status
+            status=orde.status=new_status
             buyer = student.Student.get_student_by_school_number(orde._buyer_id)
             print(buyer._user_id)
             user1=user.User.get_user_by_id(buyer._user_id)
             print(user1.email)
             print(status)
+            c=Commodity.get_commodity_by_id(orde._commodity_id)
             msg = Message('闲鲨交易通知',recipients=[user1.email])
             if new_status=='1':
                 orde_id=str(orde._id)
                 contact=str(stu._contact)
                 msg.html = render_template_string("<h1>卖家已经同意出售：您预约的%s号商品,卖家联系方式是%s<h1/>" % (orde_id,contact))
+                c.status=2
+                c.update_commodity()
             else:
                 orde_id=str(orde._id)
                 contact=str(stu._contact)
                 msg.html = render_template_string("<h1>非常抱歉，卖家不同意出售您预约的%s号商品<h1/>" % (orde_id))
+                c.status=0
+                c.update_commodity()
             mail.send(msg)
             return render_template("comorder.html")
         else:
@@ -227,23 +232,9 @@ def delete_order():
         if id is not None:
             orde=order.Order.get_order_by_id(id)
             orde.delete_order()
+            c=Commodity.get_commodity_by_id(orde._commodity_id)
+            c.status=0
+            c.update_commodity()
             return render_template("comorder.html")
         elif id is None:
-            abort(404)
-
-@login_required
-@bp.route('/add_order',methods=("GET","POST"))
-def add_order():
-    if request.method == 'GET':
-        commodity_id = request.args.get('commodity_id') or None
-        user_id = current_user.id
-        if commodity_id is not None:
-            commodity=commodity.Commodity.get_commodity_by_id(commodity_id)
-            stu=student.Student.get_student_id(user_id)
-            flag=order.Order.add_order(commodity_id=commodity_id,commodity_name=commodity.commodity_name,buyer_id=stu._school_number,school_number=commodity.owner_student_id,status='0')
-            if flag == '1':
-                return 1
-            else:
-                return 0
-        else:
             abort(404)
