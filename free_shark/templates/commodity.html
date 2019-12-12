@@ -12,7 +12,7 @@
 
     <div class="col-10">
         <div class="row">
-            {% if current_user.is_authenticated %}
+            {% if current_user.is_authenticated and not current_user.is_forbid %}
             <div class="col-2">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadCommodity">
                     上架商品
@@ -39,17 +39,17 @@
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" placeholder="商品名称" aria-label="商品名称"
                                         id="new_commodity_name" name="new_commodity_name"
-                                        aria-describedby="basic-addon1">
+                                        aria-describedby="basic-addon1" required> 
                                 </div>
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control" placeholder="商品种类" aria-label="商品种类" 
                                     id="new_commodity_type" name="new_commodity_type"
-                                    aria-describedby="basic-addon1">
+                                    aria-describedby="basic-addon1" required>
                                 </div>
                                 <div class="input-group mb-3">
                                     <input type="number" class="form-control" placeholder="价格" aria-label="价格" 
                                     id="new_commodity_price" name="new_commodity_price"
-                                    aria-describedby="basic-addon1">
+                                    aria-describedby="basic-addon1" required>
                                 </div>
                                 <div class="md-form">
                                     <label for="new_commodity_introduction">介绍</label>
@@ -143,14 +143,14 @@
     <div class="col">
 
     </div>
-    <div class="col-10">
+    <div class="col-12">
         {% for commodity in commodities %}
         
         {{ set_var(loop.length) }}
-        {% if loop.index % 2 == 1 %}
+        {% if loop.index % 3 == 1 %}
         <div class="row">
         {% endif %}
-        <div class="col-6">
+        <div class="col-4">
             {% if commodity.status == 0 %}
                 <div class="card" style="margin-top: 1%;">
             {% else %}
@@ -239,11 +239,11 @@
                             </p>
                             {% endif %}
                         </div>
-                        {% if current_user.is_authenticated %}
+                        {% if current_user.is_authenticated and not current_user.is_forbid %}
                         <div class="col">
                             {% set buy_id = 'buy_btn_' + commodity.id|string %}
                             <button type="button" id={{ buy_id }} class="btn btn-primary" onclick="buy_commodity(this.id)">
-                                预约商品
+                                预约
                             </button>
                         </div>
                         {% endif %}
@@ -272,12 +272,12 @@
                 </div>
             </div>
         </div>
-        {% if loop.index % 2 == 0 %}
+        {% if loop.index % 3 == 0 %}
         </div>
         {% endif %}
         {% endfor %}
 
-        {% if get_var() % 2 == 1 %}
+        {% if get_var() % 3 != 0 %}
         </div>
         {% endif %}
         <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
@@ -428,7 +428,6 @@
         console.log('增加评论')
         ids = id.split("_")
         commodity_id = ids[ids.length - 1]
-        target_id = 
         content_id = '#content_'+ commodity_id
         content = $(content_id).val()
         send_data = { 'id': commodity_id, 'content': content }
@@ -441,6 +440,7 @@
             success: function (back) {
                 back = $.parseJSON(back);
                 if (back.code == 200) {
+                    $(content_id).val('')
                     show_comment_id = 'show_comment_btn_id_' + commodity_id
                     show_comment(show_comment_id);
                 } else {
@@ -457,6 +457,10 @@
                 }, 2000);
             }
         });
+    }
+
+    function add_order(commodity_id){
+        window.location = "/auth/add_order?commodity_id=" + commodity_id;
     }
 </script>
 {% endblock %}

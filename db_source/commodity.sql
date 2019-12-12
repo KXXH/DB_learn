@@ -11,7 +11,7 @@
  Target Server Version : 50645
  File Encoding         : 65001
 
- Date: 10/12/2019 17:09:25
+ Date: 10/12/2019 17:23:12
 */
 
 SET NAMES utf8mb4;
@@ -37,7 +37,7 @@ CREATE TABLE `commodity`  (
   `create_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `owner_student_id`(`owner_student_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 40 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 41 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of commodity
@@ -47,5 +47,6 @@ INSERT INTO `commodity` VALUES (36, '牙刷', '生活必需品', '2016141241188'
 INSERT INTO `commodity` VALUES (37, '华为手机', '手机', '2016141225117', 3299.00, '爱我中华', '/static/image/52702d50174011eab11bb0fc361748ec.jpg', '/static/image/5270a274174011eab47cb0fc361748ec.jpg', '', '', '', 0, '2019-12-05 17:19:21');
 INSERT INTO `commodity` VALUES (38, '脸盆', '生活必需品', '2016141225117', 15.00, '应有尽有，满足你洗脸洗脚的需求', '/static/image/6c0274a8174011eaae4bb0fc361748ec.jpg', '/static/image/6c02c2ca174011ea8939b0fc361748ec.jpg', '', '', '', 0, '2019-12-05 17:20:04');
 INSERT INTO `commodity` VALUES (39, 'iphone', '手机', '2016141257442', 4288.00, '果粉看过来', '/static/image/b9e70d46174011ea813fb0fc361748ec.jpg', '/static/image/b9e75b5c174011eab6c2b0fc361748ec.jpg', '/static/image/b9e7d09e174011eaab98b0fc361748ec.jpg', '', '', 0, '2019-12-05 17:22:15');
+INSERT INTO `commodity` VALUES (40, '机械键盘', '电子产品', '2016141225117', 429.00, '电竞键盘，打游戏，码代码，高效率', '/static/image/88ef31ae1b2e11ea9702b0fc361748ec.jpg', '/static/image/88efa7581b2e11ea9e40b0fc361748ec.jpg', '/static/image/88f01c661b2e11ea9e98b0fc361748ec.jpg', '', '', 0, '2019-12-10 17:22:06');
 
 SET FOREIGN_KEY_CHECKS = 1;

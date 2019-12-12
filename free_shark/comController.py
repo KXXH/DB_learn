@@ -75,6 +75,8 @@ def solve_photo(file):
 @login_required
 def upload():
     if request.method == 'POST':
+        if current_user.is_forbid:
+            return redirect("/auth/send_activation")
         c = Commodity()
         if 'photo1' not in request.files:
             flash('No file part')
@@ -138,6 +140,8 @@ def upload():
 @login_required
 def get_my_commodity():
     if request.method == 'GET':
+        if current_user.is_forbid:
+            return redirect("/auth/send_activation")
         current = request.args.get('current') or 1
         current = int(current)
         commodity_name = request.args.get('commodity_name') or None
@@ -279,14 +283,15 @@ def show_comment():
 @bp.route('/add_comment',methods= ['POST','GET'])
 def add_comment():
     if request.method == 'POST':
-        # 设置权限，自己不能对自己的商品评论
-        add_comment_permission = AddCommentPermission(current_user.id)
-        if not add_comment_permission.can():
-            abort(401)
         data = request.get_json()
         comment = Comment()
         comment.comment_content = data['content']
         comment.commodity_id = int(data['id'])
+        commodity = Commodity.get_commodity_by_id(int(data['id']))
+        student = Student.get_student_id(current_user.id)
+        # 设置权限，自己不能对自己的商品评论
+        if commodity.owner_student_id == student._school_number:
+            abort(401)
         comment.user_id = current_user.id
         comment.username = current_user.username
         comment.status = 0

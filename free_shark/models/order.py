@@ -77,7 +77,7 @@ class Order:
     def get_order_by_school_number(school_number):
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('SELECT* FROM comorder WHERE school_number = %s',str(school_number))
+        cursor.execute('SELECT* FROM comorder WHERE school_number = %s or buyer_id=%s',(str(school_number),str(school_number)))
         results = cursor.fetchall()
         print(results)
         ordes=[]
@@ -106,7 +106,7 @@ class Order:
     def get_order_by_commodity_id(commodity_id):
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('SELECT* FROM comorder WHERE commodity_id = %s',str(commodity_id))
+        cursor.execute('SELECT* FROM comorder WHERE commodity_id = %s',(str(commodity_id)))
         results = cursor.fetchone()
         if results is None:
             return None
@@ -139,18 +139,22 @@ class Order:
 
     #查看作为卖家没有处理的订单
     @staticmethod
-    def get_order_by_school_number_and_status0(school_number):
+    def get_order_by_school_number_and_status(school_number,new_value):
         db = get_db()
         cursor = db.cursor()
-        cursor.execute('SELECT* FROM comorder WHERE school_number = %s and status = %s',(str(school_number),'0'))
-        results = cursor.fetchone()
+        cursor.execute('SELECT* FROM comorder WHERE school_number = %s and status = %s',(str(school_number),(str(new_value))))
+        results = cursor.fetchall()
         print("results=",results)
+        ordes=[]
         if results is None:
             return None
-        orde=Order.create_ord_from_rows(results)
-        return orde
+        for result in results:
+            orde=Order.create_ord_from_rows(result)
+            ordes.append(orde)
+        return ordes,len(ordes)
         db.close()
 
+    
     @staticmethod
     def search_user_without_page(id="%%",commodity_id="%%",commodity_name="%%",buyer_id="%%",school_number="%%",status="%%",create_time="%%"):
         sql="""
@@ -169,6 +173,29 @@ class Order:
         print(id,commodity_id,commodity_name,buyer_id,school_number,status,create_time)
         print(cursor.mogrify(sql,(id,commodity_id,commodity_name,buyer_id,school_number,status,create_time)))
         results=cursor.fetchall()
+        ordes=[]
+        if results is None:
+            return None
+        for result in results:
+            orde=Order.create_ord_from_rows(result)
+            ordes.append(orde)
+        return ordes,len(ordes)
+        db.close()
+
+    @staticmethod
+    def get_order_by_id_commodity(id=None,commodity_name=None,school_number=None):
+        db = get_db()
+        cursor = db.cursor()
+        if commodity_name is None and id is None:
+            cursor.execute('SELECT* FROM comorder WHERE school_number = %s or buyer_id=%s',(str(school_number),str(school_number)))
+        elif commodity_name is None:
+            cursor.execute('SELECT* FROM comorder WHERE id = %s and (school_number = %s or buyer_id=%s)',(str(id),str(school_number),str(school_number)))
+        elif id is None:
+            cursor.execute('SELECT* FROM comorder WHERE commodity_name = %s and (school_number = %s or buyer_id=%s)',(str(commodity_name),str(school_number),str(school_number)))
+        else:
+            cursor.execute('SELECT* FROM comorder WHERE (id = %s or commodity_name = %s) and (school_number = %s or buyer_id=%s)',(str(id),str(commodity_name),str(school_number),str(school_number)))
+        results = cursor.fetchall()
+        print(results)
         ordes=[]
         if results is None:
             return None
