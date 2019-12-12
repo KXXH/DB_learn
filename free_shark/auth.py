@@ -121,7 +121,7 @@ def logout():
     logout_user()
     identity_changed.send(current_app._get_current_object(),
                         identity=AnonymousIdentity())
-    return redirect("/hello")
+    return redirect(url_for("auth.login"))
 
 @login_required
 @bp.route('/indexorder',methods=("GET","POST"))

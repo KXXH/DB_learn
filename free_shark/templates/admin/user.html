@@ -65,7 +65,7 @@
             <td>{{user.email}}</th> 
             <td>
                 {% for role in user.role %}
-                <span class="badge badge-pill badge-{% if role=="admin" %}primary {% elif role=="forbid" %}secondary {% elif role=="blocked" %}warning {% else %}info {% endif %}">{{role}}</span>
+                <span class="badge badge-pill badge-{% if role=="admin" %}primary {% elif role=="forbid" %}secondary {% elif role=="blocked" %}warning {% elif role=="deleted" %}danger {% else %}info {% endif %}">{{role}}</span>
                 {% endfor %}
             </td>
             <td >{{user.create_time}}</td>

@@ -1,7 +1,7 @@
 # DB_learn
 
 ![](<https://github.com/KXXH/DB_learn/workflows/test/badge.svg>)
-
+[![codecov](https://codecov.io/gh/KXXH/DB_learn/branch/master/graph/badge.svg)](https://codecov.io/gh/KXXH/DB_learn)
  a simple work for db_design
 
 ## 环境配置方法

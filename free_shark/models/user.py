@@ -84,6 +84,8 @@ class User(UserMixin):
     @property
     def role(self):
         ans=[]
+        if self.is_deleted:
+            ans.append("deleted")
         if self.is_blocked:
             ans.append("blocked")
             #return ans
@@ -103,6 +105,10 @@ class User(UserMixin):
     @property
     def is_user(self):
         return self.type==1
+
+    @property
+    def is_deleted(self):
+        return self.status<0
 
     @property
     def is_admin(self):
@@ -195,6 +201,7 @@ class User(UserMixin):
         try:
             cursor.execute("UPDATE user SET email=%s WHERE id=%s",(self._email,self._id))
             db.commit()
+            self.status=2
         except:
             db.rollback()
             abort(500)

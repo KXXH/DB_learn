@@ -159,10 +159,11 @@
             page_size:20
         }
         var content=$("#search_content").val();
+        var target=$("#search_target").text();
         if(content.length==0){
             content="%%";
         }
-        switch(content){
+        switch(target){
             case "用户名":
                 postData['username']=content;
                 break;
