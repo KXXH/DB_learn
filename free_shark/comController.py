@@ -75,6 +75,8 @@ def solve_photo(file):
 @login_required
 def upload():
     if request.method == 'POST':
+        if current_user.is_forbid:
+            return redirect("/auth/send_activation")
         c = Commodity()
         if 'photo1' not in request.files:
             flash('No file part')
@@ -138,6 +140,8 @@ def upload():
 @login_required
 def get_my_commodity():
     if request.method == 'GET':
+        if current_user.is_forbid:
+            return redirect("/auth/send_activation")
         current = request.args.get('current') or 1
         current = int(current)
         commodity_name = request.args.get('commodity_name') or None
