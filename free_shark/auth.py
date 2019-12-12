@@ -240,7 +240,10 @@ def add_order():
         if commodity_id is not None:
             commodity=commodity.Commodity.get_commodity_by_id(commodity_id)
             stu=student.Student.get_student_id(user_id)
-            order.Order.add_order(commodity_id=commodity_id,commodity_name=commodity.commodity_name,buyer_id=stu._school_number,school_number=commodity.owner_student_id,status='0')
-            return render_template("commodity.html")
+            flag=order.Order.add_order(commodity_id=commodity_id,commodity_name=commodity.commodity_name,buyer_id=stu._school_number,school_number=commodity.owner_student_id,status='0')
+            if flag == '1':
+                return 1
+            else:
+                return 0
         else:
             abort(404)

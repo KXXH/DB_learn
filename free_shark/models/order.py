@@ -30,6 +30,7 @@ class Order:
             # 提交到数据库执行
             print("提交到数据库执行")
             db.commit()
+            return 1
         except Exception as e:
             # 如果发生错误则回滚
             db.rollback()
