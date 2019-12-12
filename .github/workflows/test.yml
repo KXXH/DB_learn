@@ -47,7 +47,7 @@ jobs:
       run: |
         pip install pytest pytest-cov codecov
         pytest --cov=free_shark
-        codecov -t
+        codecov --token ${{secrets.CODECOV_TOKEN}}
       env:
         DB_HOST: localhost
         DB_USER: root
