@@ -46,9 +46,8 @@ class TestOrder:
     def test_update_status(self,app):
         with app.app_context():
             orde=Order.get_order_by_id(3)
-            orde.update_status='0'
-            orde=Order.get_order_by_id(3)
-            assert orde.update_status=='0'
+            orde.status='0'
+            assert orde.status=='0'
 
     @pytest.mark.parametrize('value',['2016141225117','2016141225117'])
     def test_select1_by_school_number_and_status0(self,app,value):

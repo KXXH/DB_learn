@@ -410,7 +410,7 @@
             function (data) {
                 data = $.parseJSON(data);
                 if (data.code == 200) {
-                    $("#hintBody").text("预约成功！");
+                    $("#hintBody").text(data.msg);
                 } else {
                     $("#hintBody").text(data.msg);
                 }

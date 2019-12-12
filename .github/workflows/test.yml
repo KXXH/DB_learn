@@ -45,8 +45,9 @@ jobs:
       
     - name: Test with pytest
       run: |
-        pip install pytest
-        pytest --cov=./freeshark
+        pip install pytest pytest-cov codecov
+        pytest --cov=free_shark
+        codecov -t
       env:
         DB_HOST: localhost
         DB_USER: root

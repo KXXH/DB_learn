@@ -30,6 +30,7 @@ class Order:
             # 提交到数据库执行
             print("提交到数据库执行")
             db.commit()
+            return 1
         except Exception as e:
             # 如果发生错误则回滚
             db.rollback()
@@ -115,11 +116,11 @@ class Order:
         db.close()
 
     @property
-    def update_status(self):
+    def status(self):
         return self._status
 
-    @update_status.setter
-    def update_status(self,new_val):
+    @status.setter
+    def status(self,new_val):
         self._status=new_val
         db = get_db()
         # 使用cursor()方法获取操作游标 
@@ -134,6 +135,7 @@ class Order:
         except:
             # 如果发生错误则回滚
             db.rollback()
+            raise
             # 关闭数据库连接
         db.close() 
 
