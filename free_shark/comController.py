@@ -43,7 +43,7 @@ def index():
         coms = Commodity.search_commodity(-1,offset,page.limit,0,commodity_type,commodity_name)
         return render_template("commodity.html", commodities=coms,page=page)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg','gif'}
 
 
 def remove_html(s):

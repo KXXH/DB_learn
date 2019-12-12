@@ -201,6 +201,7 @@ class User(UserMixin):
         try:
             cursor.execute("UPDATE user SET email=%s WHERE id=%s",(self._email,self._id))
             db.commit()
+            self.status=2
         except:
             db.rollback()
             abort(500)
