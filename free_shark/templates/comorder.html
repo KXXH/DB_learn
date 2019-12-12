@@ -131,18 +131,38 @@ function search_status0(){
                             
     }
 function delete_order(id){
-        window.location = "/auth/delete_order?id=" + id;
+
+        if(confirm("您确认要删除这个订单吗?注意：删除操作是不可逆的，请仔细考虑!")==true){
+            window.location = "/auth/update?id=" + id
+                          +"&new_status=" + 1;
+        }
+        else{
+
+        }
     }
 
 function update_status_to1(id){
-        
-        window.location = "/auth/update?id=" + id
+
+        if(confirm("是否同意订单？")==true){
+            window.location = "/auth/update?id=" + id
                           +"&new_status=" + 1;
+        }
+        else{
+
+        }
+        
     }
 
 function update_status_to2(id){
-        window.location = "/auth/update?id=" + id
+
+        if(confirm("是否不同意订单？")==true){
+            window.location = "/auth/update?id=" + id
                           +"&new_status=" + 2;
+        }
+        else{
+
+        }
+        
     }
 </script>
 {% endblock %}
