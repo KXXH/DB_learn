@@ -226,3 +226,15 @@ def delete_order():
             return render_template("comorder.html")
         elif id is None:
             abort(404)
+
+@login_required
+@bp.route('/add_order',methods=("GET","POST"))
+def add_order():
+    if request.method == 'GET':
+        commodity_id = request.args.get('commodity_id') or None
+        if id is not None:
+            orde=order.Order.get_order_by_id(id)
+            orde.delete_order()
+            return render_template("commodity.html")
+        elif id is None:
+            abort(404)
