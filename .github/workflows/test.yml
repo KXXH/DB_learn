@@ -46,7 +46,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov codecov
-        pytest --cov=free_shark
+        pytest --cov=free_shark --cov-report=xml tests
       env:
         DB_HOST: localhost
         DB_USER: root
@@ -61,5 +61,5 @@ jobs:
     - uses: codecov/codecov-action@v1.0.5
       with:
         # User defined upload name. Visible in Codecov UI
-        token: ${{secrets.CODECOV_TOKEN}}
-        # Path to coverage file to upload
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: coverage.xml
