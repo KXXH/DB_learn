@@ -47,7 +47,6 @@ jobs:
       run: |
         pip install pytest pytest-cov codecov
         pytest --cov=free_shark
-        codecov --token ${{secrets.CODECOV_TOKEN}}
       env:
         DB_HOST: localhost
         DB_USER: root
@@ -57,3 +56,9 @@ jobs:
         DATABASE: free_shark
         FLASK_APP: free_shark
         FLASK_ENV: development
+    - name: Codecov
+    - uses: codecov/codecov-action@v1.0.5
+      with:
+        # User defined upload name. Visible in Codecov UI
+        token: ${{secrets.CODECOV_TOKEN}}
+        # Path to coverage file to upload
